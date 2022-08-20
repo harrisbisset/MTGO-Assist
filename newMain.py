@@ -21,12 +21,14 @@ def main():
         #checks if signed, if not, signs in
         logIN(mainNavWin)
 
-        #navigate to settings
-        
+        #clcik on settings
+        settingsLocation = pyautogui.locateOnScreen(r'C:\Users\harri\OneDrive\Documents\mtgoAddon\images\settings.png', confidence=.70, region = (2435, 38, 52, 60))
+        pyautogui.click(settingsLocation)
 
-        #click on settings
-        #navigate to game history
         #click on game history
+        gameHistLocation = pyautogui.locateOnScreen(r'C:\Users\harri\OneDrive\Documents\mtgoAddon\images\game-history.png', confidence=.70, region = (12, 386, 190, 31))
+        pyautogui.click(gameHistLocation)
+
         #navigate to top of records
         #while recordID != None:
             #select next record
@@ -96,7 +98,6 @@ def userNamePass(button, inputData):
     pyautogui.click(button)
     pyautogui.press('backspace', presses=25)
     pyautogui.write(inputData)
-
 
 
 main()
