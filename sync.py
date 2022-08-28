@@ -6,9 +6,14 @@ import psutil
 #import sys
 import os
 import pygetwindow as gw
+import urllib.request
+
 
 def main():
-    print(os.getcwd())
+
+    if not checkConnection():
+        exit
+    
     if checkIfProcessRunning('MTGO.exe') == False:
         #MTGO is run from a .appref-ms (clickOnce) file, you can try to update this
         openApplication()
@@ -21,14 +26,15 @@ def main():
         #checks if signed, if not, signs in
         logIN(mainNavWin)
 
-        #clcik on settings
+        #navigate to settings
         settingsLocation = pyautogui.locateOnScreen(r'C:\Users\harri\OneDrive\Documents\mtgoAddon\images\settings.png', confidence=.70, region = (2435, 38, 52, 60))
         pyautogui.click(settingsLocation)
 
-        #click on game history
+        #navigate to game history
         gameHistLocation = pyautogui.locateOnScreen(r'C:\Users\harri\OneDrive\Documents\mtgoAddon\images\game-history.png', confidence=.70, region = (12, 386, 190, 31))
         pyautogui.click(gameHistLocation)
 
+        #click on game history
         #navigate to top of records
         #while recordID != None:
             #select next record
@@ -99,5 +105,12 @@ def userNamePass(button, inputData):
     pyautogui.press('backspace', presses=25)
     pyautogui.write(inputData)
 
+
+def checkConnection(host='http://google.com'):
+    try:
+        urllib.request.urlopen(host)
+        return True
+    except:
+        return False
 
 main()
