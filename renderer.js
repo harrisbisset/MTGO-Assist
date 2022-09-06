@@ -8,7 +8,14 @@ function runPython(){
 }
 
 document.querySelector('#pyBtnSync').addEventListener('click', () => {
+    
+    //
+    document.getElementById('#pyBtnSync').style.display = "none"
+    
     //run pythonfile that grabs user preference data from db
     //runPython(autoLogin = T/F, userName = '', password = '', )
     runPython()
+    
+    //
+    document.getElementById('#pyBtnSync').style.display = "block"
 })
