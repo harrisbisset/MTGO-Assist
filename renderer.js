@@ -7,6 +7,22 @@ function runPython(){
     });
 }
 
+function runPythonDB(){
+    var pyshell =  require('python-shell');
+
+    var pjson = require('./package.json');
+
+
+    let opDataLoad = {
+      args: ["loaded", pjson.version]
+    }
+
+    pyshell.PythonShell.run('dbCMD.py', opDataLoad, function  (err, results)  {
+      if  (err)  throw err;
+      console.log('dbCMD.py finished.');
+    });
+}
+
 document.querySelector('#pyBtnSync').addEventListener('click', () => {
     
     //
