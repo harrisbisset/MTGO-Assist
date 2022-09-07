@@ -1,4 +1,4 @@
-function runPython(){
+function runPythonSync(){
     var pyshell =  require('python-shell');
 
     pyshell.PythonShell.run('sync.py', null, function  (err, results)  {
@@ -30,7 +30,7 @@ document.querySelector('#pyBtnSync').addEventListener('click', () => {
     
     //run pythonfile that grabs user preference data from db
     //runPython(autoLogin = T/F, userName = '', password = '', )
-    runPython()
+    runPythonSync()
     
     //
     document.getElementById('#pyBtnSync').style.display = "block"
