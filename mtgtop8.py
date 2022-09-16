@@ -1,5 +1,3 @@
-#from ast import Return
-#from tkinter import E
 from selenium_respectful import RespectfulWebdriver
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
