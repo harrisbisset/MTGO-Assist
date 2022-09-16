@@ -13,11 +13,15 @@ function runPythonDB(){
     var pjson = require('./package.json');
 
     let opDataLoad = {
+      mode: 'text',
+      pythonOptions: ['-u'],
       args: ["loaded", pjson.version]
     }
 
     pyshell.PythonShell.run('./python/dbCMD.py', opDataLoad, function  (err, results)  {
-      if (results == "createdDB"){
+
+      //switch back to createdDB
+      if (results[0] == "connectedDB"){
         const { BrowserWindow } = require('electron')
         const winInput = new BrowserWindow({ show: false })
         winInput.loadFile('./forms/inputUserData.html')
@@ -25,9 +29,9 @@ function runPythonDB(){
           winInput.show()
         })
       }
-
       if  (err)  throw err;
-        console.log('dbCMD.py finished.');
+      console.log('dbCMD.py finished.');
+      console.log('results: %j', results);
     });
 }
 
