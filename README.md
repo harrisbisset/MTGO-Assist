@@ -1,4 +1,4 @@
-MTGO Assistant Tool
+## MTGO Assistant Tool
 
 1.0.0
 ## ^^LATEST_VERSION^^
