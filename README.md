@@ -1,5 +1,5 @@
 ## MTGO Assistant Tool
-v1.0.0
+Version = v1.0.0
 
 ## Lisence
 [MIT License](LICENSE)
