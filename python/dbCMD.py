@@ -3,6 +3,7 @@ import urllib.request
 import sys
 from bs4 import BeautifulSoup
 import requests
+import os
 
 
 #datapull should run when program started with 'start parameter put in'
@@ -16,22 +17,23 @@ def checkConnection():
     except:
         conInt = False
     
+    
+
     #check if userDB is created
-    userConnection = sqlite3.connect("mtgoAssit.db")
-    if connection.total_changes == 0:
-        cursor = connection.cursor()
-        try:
-            cursor.execute("SELECT database();")
-            record = cursor.fetchone()
-
-            #temp
-            cursor.execute("DROP TABLE userDetails")
-        except:
-            cursor.execute("CREATE TABLE userDetails(name TEXT, mtgoName TEXT, mtgoPass TEXT)")
-            sys.exit("createdDB")
-
+    if os.path.isfile('./database/mtgoAssit.db'):
+        print("connectedDB")
     else:
-        print("not connected to userDetails.db")
+        userConnection = sqlite3.connect("./database/mtgoAssit.db")
+        cursor = userConnection.cursor()
+        cursor.execute("CREATE TABLE userDetails(name TEXT, mtgoName TEXT, mtgoPass TEXT)")
+        # cursor.execute("DROP TABLE userDetails")
+        print("createdDB")
+   
+
+    
+
+    # else:
+    #     print("not connected to userDetails.db")
 
     connection = sqlite3.connect("########.db")
     if connection.total_changes == 0:
@@ -48,20 +50,20 @@ def openData():
         #get data
         pass
     else:
-        print("Couldn't connect to local database")
+        print("unconnectedDB")
     if connects[1] == True:
-        page = requests.get('https://github.com/harrisbisset/MTGO-Assist/blob/main/README')
+        print("connectedInt")
+        page = requests.get('https://github.com/harrisbisset/MTGO-Assist/blob/main/README.md')
         soup = BeautifulSoup(page.content, 'html.parser')
-        version = soup.find('td', id="LC3").text()
-        if str(sys.args[2]).replace('v', '') != version:
-            print("need to update")
-    else:
-        print("Not connected to the internet or mtgtop8 down")
+        version = soup.find('p').text
 
-    
-    
-if __name__ == "main":
-    if str(sys.argv[1]) == 'loaded':
-        openData()
+        if str(sys.argv[2]) != version:
+            print("updateProg")
+    else:
+        print("unconnectedInt")
+
+if __name__ != "main":
+    #if str(sys.argv[1]) == 'loaded':
+    openData()
 #recordData
 #int matchID, str(binary option = Limited/Contructed) gameType, str(binary option = ...) format, int tuple(W,D,L) record, str uDeck, str oDeck, str ozUsername, date, time
