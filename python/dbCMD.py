@@ -3,10 +3,6 @@ import urllib.request
 import sys
 from bs4 import BeautifulSoup
 import requests
-import os
-
-
-#datapull should run when program started with 'start parameter put in'
 
 
 def checkConnection():
@@ -17,41 +13,27 @@ def checkConnection():
     except:
         conInt = False
     
-    
+    userConnection = sqlite3.connect("./database/mtgoAssist.db")
+    cursor = userConnection.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='userDetails';")
+    if not cursor.fetchone():
+        cursor.execute("CREATE TABLE userDetails(temp TEXT);")
 
-    #check if userDB is created
-    if os.path.isfile('./database/mtgoAssit.db'):
+    #check if userDetails empty
+    cursor.execute("select count(1) where exists (select * from userDetails)")
+    check = cursor.fetchone()
+
+    if check == (0,):
+        print("unconnectedDB")
+    else:
         print("connectedDB")
-    else:
-        userConnection = sqlite3.connect("./database/mtgoAssit.db")
-        cursor = userConnection.cursor()
-        cursor.execute("CREATE TABLE userDetails(name TEXT, mtgoName TEXT, mtgoPass TEXT)")
-        # cursor.execute("DROP TABLE userDetails")
-        print("createdDB")
-   
-
-    
-
-    # else:
-    #     print("not connected to userDetails.db")
-
-    connection = sqlite3.connect("########.db")
-    if connection.total_changes == 0:
-        conDB = True
-    else:
-        conDB = False
-
-    return conDB, conInt
+    return conInt
 
 
 def openData():
-    connects = checkConnection()
-    if connects[0] == True:
-        #get data
-        pass
-    else:
-        print("unconnectedDB")
-    if connects[1] == True:
+    conInt = checkConnection()
+
+    if conInt == True:
         print("connectedInt")
         page = requests.get('https://github.com/harrisbisset/MTGO-Assist/blob/main/README.md')
         soup = BeautifulSoup(page.content, 'html.parser')
@@ -62,8 +44,24 @@ def openData():
     else:
         print("unconnectedInt")
 
+
+def createUser():
+    userConnection = sqlite3.connect("./database/mtgoAssist.db")
+    cursor = userConnection.cursor()
+    cursor.execute("DROP TABLE userDetails")
+    cursor.execute("CREATE TABLE userDetails(name TEXT, pass TEXT, mtgoName TEXT, mtgoPass TEXT)")
+    #print(f"INSERT INTO userDetails (name, pass, mtgoName, mtgoPass) VALUES ({v1}, {v2}, {v3}, {v4};")
+    #cursor.execute(f"INSERT INTO userDetails (name, pass, mtgoName, mtgoPass) VALUES ({v1}, {v2}, {v3}, {v4});")
+    params = (sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    cursor.execute(f"INSERT INTO userDetails (name, pass, mtgoName, mtgoPass) VALUES (?, ?, ?, ?);", params)
+    print('createdUser')
+
+#createUser("dw", "dwd2", "v3dwdw", "wddwv4")
+
 if __name__ != "main":
-    #if str(sys.argv[1]) == 'loaded':
-    openData()
+    if str(sys.argv[1]) == 'loaded':
+        openData()
+    if str(sys.argv[1]) == 'createUser':
+        createUser()
 #recordData
 #int matchID, str(binary option = Limited/Contructed) gameType, str(binary option = ...) format, int tuple(W,D,L) record, str uDeck, str oDeck, str ozUsername, date, time
