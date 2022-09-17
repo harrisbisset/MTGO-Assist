@@ -1,5 +1,3 @@
-window.$ = window.jQuery = require('jquery');
-
 function runPythonSync(){
     var pyshell =  require('python-shell');
 
