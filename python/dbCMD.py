@@ -70,17 +70,37 @@ def createUser():
     params = (sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
     query = ("INSERT INTO userDetails VALUES (?, ?, ?, ?)")
     cursor.execute(query, params)
+
+    #create record table
+
     userConnection.commit()
     cursor.close()
     userConnection.close()
     print('createdUser')
 
+def getUserData():
+    userConnection = sqlite3.connect("./database/mtgoAssist.db")
+    cursor = userConnection.cursor()
+    
+    #id = cursor.execute("SELECT MAX(ID) FROM records")
+    #print(id)
+
+    cursor.execute("SELECT mtgoName, mtgoPass FROM userDetails")
+    for data in cursor:
+        print(data)
+    cursor.close()
+    userConnection.close()
+
+
 if __name__ == "main":
     pass
 else:
-    if str(sys.argv[1]) == 'loaded':
+    if sys.argv[1] == 'loaded':
         openData()
-    if str(sys.argv[1]) == 'createUser':
+    if sys.argv[1] == 'createUser':
         createUser()
+    if sys.argv[1] == 'getDataSync':
+        getUserData()
+    
 #recordData
 #int matchID, str(binary option = Limited/Contructed) gameType, str(binary option = ...) format, int tuple(W,D,L) record, str uDeck, str oDeck, str ozUsername, date, time
