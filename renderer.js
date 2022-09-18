@@ -2,12 +2,66 @@ window.$ = window.jQuery = require('jquery');
 
 function runPythonSync(){
     var pyshell =  require('python-shell');
+    var mtgoName = ''
+    var mtgoPass = ''
+    var highestRecordID
+    var manual = false
 
-    pyshell.PythonShell.run('./python/sync.py', null, function  (err, results)  {
+    let cmdDataLoad = {
+      mode: 'text',
+      pythonOptions: ['-u'],
+      args: ['getDataSync']
+    }
+
+    pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
+      if (results[0] !== ''){
+        const Dialogs = require('dialogs')
+        const dialogs = Dialogs()
+        dialogs.confirm(`Would you like to scrape data from the ${results[0]} account (password is saved as ${results[3]})?`, ok => {
+          if (ok !== undefined){
+            mtgoName = results[0]
+            mtgoPass = results[1]
+          } else {
+            dialogs.confirm('Would you like to login manually?', ok => {
+              if (ok === undefined) {
+                dialogs.alert('Please input login details into MTGO', ok=>{});
+                manual = true
+              } else {
+                dialogs.alert('Please provide username and password for mtgo account', ok => {
+                  dialogs.prompt('Username', ok => {
+                    mtgoName = ok
+                    dialogs.prompt('Password', ok => {
+                      mtgoPass = ok
+                    });
+                  });
+                });
+              }
+            });
+          }
+        });
+      }
+      highestRecordID = results[2]
+
+      if  (err)  throw err;
+      console.log('dbCMD.py finished.');
+      console.log('results: ', results);
+    });
+
+    let syncDataLoad = {
+      mode: 'text',
+      pythonOptions: ['-u'],
+      args: [manual, mtgoName, mtgoPass, highestRecordID]
+    }
+
+    pyshell.PythonShell.run('./python/sync.py', syncDataLoad, function  (err, results)  {
 
       //if 'unconnectedInt returned'
-      if (results[1] == "unconnectedInt") {
+      if (results[0] === "unconnectedInt") {
         unInt()
+      } else if (results[0] === "license"){
+        const Dialogs = require('dialogs')
+        const dialogs = Dialogs()
+        dialogs.alert('Please close the end user license agreement!', ok =>{})
       }
       if  (err)  throw err;
       console.log('sync.py finished.');
@@ -17,12 +71,12 @@ function runPythonSync(){
 function runPythonCreateUser(userName, userPass, mtgoName, mtgoPass){
   var pyshell =  require('python-shell');
   
-  let opDataLoad = {
+  let cmdDataLoad = {
     mode: 'text',
     pythonOptions: ['-u'],
     args: ['createUser', userName, userPass, mtgoName, mtgoPass]
   }
-  pyshell.PythonShell.run('./python/dbCMD.py', opDataLoad, function  (err, results)  {
+  pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
       if  (err)  throw err;
       console.log('dbCMD.py finished.');
       console.log('results: ', results);
@@ -33,13 +87,13 @@ function runPythonDB(){
     var pyshell =  require('python-shell');
     var pjson = require('./package.json');
 
-    let opDataLoad = {
+    let cmdDataLoad = {
       mode: 'text',
       pythonOptions: ['-u'],
       args: ["loaded", pjson.version]
     }
 
-    pyshell.PythonShell.run('./python/dbCMD.py', opDataLoad, function  (err, results)  {
+    pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
 
       //if the table userDetails doesn't exist, then renderer.js prompts the user to enter them
       if (results[0] === "unconnectedDB"){
