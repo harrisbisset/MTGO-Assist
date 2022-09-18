@@ -1,3 +1,5 @@
+#from ast import Return
+#from tkinter import E
 from selenium_respectful import RespectfulWebdriver
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -7,14 +9,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.keys import Keys
+import sys
 
 
 
-gameNo = 1
-date = "04/09/2022"
-MB = ("Thalia, Guardian of Thraben", "Archon of Emeria")
-SB = ("Mindbreak Trap", "Leyline of The Void")
-format = "Vintage"
+#gameNo = 1
+#date = "04/09/2022"
+#MB = ("Thalia, Guardian of Thraben", "Archon of Emeria")
+#SB = ("Mindbreak Trap", "Leyline of The Void")
+#format = "Vintage"
 
 
 class DriverController():
@@ -39,7 +42,7 @@ class DriverController():
         self.driver.get(url)
 
 
-    def inputFormData(self, date, MB, SB, format, gameNo):
+    def inputFormData(self, gameNo, format, MainB, SideB, date):
         #finds the format <select> tag, and selects the format passed in
         select_element = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[4]/td[2]/select')
         select_object = Select(select_element)
@@ -48,10 +51,10 @@ class DriverController():
         '''each match is a best of three, and in games 2 to 3 more cards can be added (SB)
         so if it's not game 1, then SB is added to the cards, and the SB option is checked on the website'''
         if gameNo > 1:
-            cards = MB
+            cards = MainB
         else:
             self.driver.find_element(By.XPATH, '//input[@name="SB_check"]').click()
-            cards = MB + SB
+            cards = MainB + SideB
         
         #loops through the list of cards, writing each card into the <textarea>
         textarea = self.driver.find_element(By.XPATH, '//textarea[@name="cards"]')
@@ -82,8 +85,9 @@ class DriverController():
         for card in cards:
             card = card.text
             decklist.append(card)
-            #sends record to DB
+            #saves info to deckSave.db
 
+        #selects the most populous deckName
         print(decklist)
         print(deckName)
 
@@ -113,6 +117,8 @@ class DriverController():
 
 
 if __name__ == "__main__":
+    pass
+else:
     #sets the base url
     url = "https://mtgtop8.com/search"
 
@@ -126,7 +132,7 @@ if __name__ == "__main__":
     dc.cookieBanner()
 
     #calls the 'inputFormData()' object to get all decks to be scraped
-    dc.inputFormData(date, MB, SB, format, gameNo)
+    dc.inputFormData(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
 
     #gets the deck urls and names from the 'getDeckUrls()' object
     deckUrls, deckNames = dc.getDeckUrls()
