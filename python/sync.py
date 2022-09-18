@@ -3,7 +3,7 @@ import time
 from PIL import Image, ImageDraw
 #import psutil
 #import subprocess
-#import sys
+import sys
 import os
 import pygetwindow as gw
 import urllib.request
@@ -27,21 +27,32 @@ def main():
         mainNavWin.activate()
         mainNavWin.maximize()
 
-        #checks if signed, if not, signs in
-        logIN(mainNavWin)
+        #checks if endUserLicense.png present, if so, it exits asks user to close it
+        checkEndUserLicense = pyautogui.locateOnScreen(r'.\images\endUserLicense.png')
+        if checkEndUserLicense:
+            print("license")
+            exit
 
-        #add function to wait
+        #if user doesn't want to manually input data, logIN function is run
+        if sys.argv[1] == False:
+            logIN(mainNavWin)
 
         #navigate to settings
-        settingsLocation = pyautogui.locateOnScreen(r'.\images\settings.png', confidence=.70, region = (2435, 38, 52, 60))
-        pyautogui.click(settingsLocation)
+        while True:
+            try:
+                settingsLocation = pyautogui.locateOnScreen(r'.\images\settings.png', confidence=.70, region = (2435, 38, 52, 60))
+                if settingsLocation is not None:
+                    pyautogui.click(settingsLocation)
+                    break
+            finally:
+                time.sleep(4)
 
         #navigate to game history
         gameHistLocation = pyautogui.locateOnScreen(r'.\images\game-history.png', confidence=.70, region = (0, 377, 292, 46))
         pyautogui.click(gameHistLocation)
         time.sleep(0.25)
 
-        recordID = 0 #highest recordID from db (local or serverside)
+        recordID = 0 #sys.argv[4]
         top = 368
         recordLoop = 0
         pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -56,7 +67,7 @@ def main():
         imgText_rgb = get_grayscale(imgText_rgb)
         record = pytesseract.image_to_string(imgText_rgb)
 
-        #converts to better time
+        #converts 12h to 24h time
         if record[6] == 'PM':
             temp = record[5].split(':')
             temp[0] = int(temp[0]) + 12
@@ -74,8 +85,16 @@ def main():
         
         for game in games:
             pyautogui.click(game)
-            #check if new window open
-            #else skip
+            gameNo = games.index(game)
+
+            #get game data
+            #MainB
+            #SideB
+
+            os.system(f'./mtgtop8.py {gameNo} {record[1]} {MainB} {SideB} {record[5]}')
+            #mtgtop8.com
+
+
 
             #each scroll moves down 3 records
             #recordLoop = recordLoop + 1
@@ -103,7 +122,7 @@ def main():
 
 
 def checkIfProcessRunning(processName):
-    #Checks if process running
+    #checks if application running
     print('Checking if application is running...')
     output = os.popen('wmic process get description').read()
     if processName in output:
@@ -112,16 +131,9 @@ def checkIfProcessRunning(processName):
 
 def openApplication():
     #currently functionality non-existant, so error message instead
-    #send error message to imGui
     return 
 
 def logIN(mainNavWin):
-
-    #update to retrive stored user preference data
-
-    #if not username:
-        #send message to display = "Please open and login to MTGO"
-        #exit
 
     #sets autoFilled to false, first, for userName
     autoFilled = False
@@ -133,13 +145,13 @@ def logIN(mainNavWin):
         try:
             password = pyautogui.locateOnScreen(r'.\images\password.png', confidence=.70, region = (122, 609, 399, 55))
             screenName = pyautogui.locateOnScreen(r'.\images\screenName.png', confidence=.70, region = (122, 556, 400, 54))
-            uN = input("Username: ")
+            uN = sys.argv[2]
         except:
             #if program can't detect screenName, but login detected, screenName is autoFilled
             autoFilled = True
             pass
         
-        uP = input("Password: ")
+        uP = sys.argv[2]
 
         #workaround for problem that occurs when .activate() doesn't work and throws [Error code from Windows: 6 - The handle is invalid.]
         if mainNavWin != []:
