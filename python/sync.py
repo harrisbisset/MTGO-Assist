@@ -1,18 +1,21 @@
 import pyautogui
 import time
 from PIL import Image, ImageDraw
-import psutil
+#import psutil
 #import subprocess
-import sys
+#import sys
 import os
 import pygetwindow as gw
 import urllib.request
 import pytesseract
 import cv2
+import sqlite3
 
 def main():
 
+    #runs checkConnection(), and if false, it exits the program, returning 'unconnectdInt' to renderer.js
     if not checkConnection():
+        print("unconnectedInt")
         exit
     
     if checkIfProcessRunning('MTGO.exe') == False:
@@ -162,10 +165,6 @@ def userNamePass(button, inputData):
 
 
 def checkConnection(host='http://google.com'):
-
-    #add bit here to check for update to program
-    #compare version in package.json
-    
     try:
         urllib.request.urlopen(host)
         return True
@@ -176,7 +175,6 @@ def checkConnection(host='http://google.com'):
 def ocr_core(img):
     text = pytesseract.image_to_string(img)
     return text
-
 
 def get_grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
