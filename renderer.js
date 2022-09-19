@@ -17,7 +17,7 @@ function runPythonSync(){
       if (results[0] !== ''){
         const Dialogs = require('dialogs')
         const dialogs = Dialogs()
-        dialogs.confirm(`Would you like to scrape data from the ${results[0]} account (password is saved as ${results[3]})?`, ok => {
+        dialogs.confirm(`Would you like to scrape data from the ${results[0]} account (password is saved as ${results[1]})?`, ok => {
           if (ok !== undefined){
             mtgoName = results[0]
             mtgoPass = results[1]
@@ -58,10 +58,15 @@ function runPythonSync(){
       //if 'unconnectedInt returned'
       if (results[0] === "unconnectedInt") {
         unInt()
-      } else if (results[0] === "license"){
+      } else if (results[0] === "license") {
         const Dialogs = require('dialogs')
         const dialogs = Dialogs()
         dialogs.alert('Please close the end user license agreement!', ok =>{})
+      } else if (results[0] === "unOpened") {
+        console.log(results[0])
+        const Dialogs = require('dialogs')
+        const dialogs = Dialogs()
+        dialogs.alert('Please open the program!', ok =>{})
       }
       if  (err)  throw err;
       console.log('sync.py finished.');
