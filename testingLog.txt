@@ -1,1 +1,7 @@
 
+#electron
+probs
+1. run py file from electron
+2.
+
+getting a popup box working electron
