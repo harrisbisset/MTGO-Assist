@@ -2,6 +2,8 @@ import re
 from collections import defaultdict
 import os.path
 from datetime import datetime
+import sqlite3
+from mtgtop8 import
 
 
 class matchRecord:
@@ -48,7 +50,9 @@ class matchRecord:
             winner = self._get_winner(game)
 
             #run mtgtop8.py to get deckNames
-
+            
+            
+            
             #insertgame into db
 
     def _get_players(self):
