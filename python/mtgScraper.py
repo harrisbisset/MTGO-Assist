@@ -8,14 +8,7 @@ def main(path, player):
     records = list()
     for filename in file_list:
         #print(filename)
-        match = matchRecord(f'{path}/{filename}', player=player).get_json()
-
-    #     if match:
-    #         match = json.loads(match)
-    #         records.append(match)
-            
-    # with open(f'compiled_results_{player}.json', 'w') as output:
-    #     output.write(json.dumps(records))
+        matchRecord(f'{path}/{filename}', player=player)
 
 
 if __name__ == '__main__':
