@@ -154,6 +154,8 @@ function runPythonDB(){
       }else if (results[2] === "connectedInt"){
         //hides reload button
         document.getElementById('#btnReload').style.display = "none";
+          
+        //should also show sync button (set it to hidden first)
       }
 
       if(err)  throw err;
