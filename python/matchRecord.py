@@ -2,8 +2,9 @@ import re
 from collections import defaultdict
 import os.path
 from datetime import datetime
-import sqlite3
-from mtgtop8 import
+from socket import getnameinfo
+#from mtgtop8 import DriverController
+
 
 
 class matchRecord:
@@ -16,7 +17,6 @@ class matchRecord:
             self.match_log = f.read().decode(encoding='utf-8', errors='replace')
             #Unknown characters are replaced by \ufffd (those question marks)
 
-        # Keep those line in this order
 
         #python mtg_scraper.py C:\Users\harri\AppData\Local\Apps\2.0\Data\JWMNX0QY.YK3\AGMD182G.AAW\mtgo..tion_92a8f782d852ef89_0003.0004_4d4c5524cb8c51a2\Data\AppFiles\E8BC386C00E942D40363482907EEDEEA
         
@@ -31,28 +31,28 @@ class matchRecord:
         
         # Record players as {'player': 'player_name', 'opponent': 'opp_name}
         #self.records['players'] = dict((v, k) for k, v in self.players.items())
-        self._format_cards(filename)
-        self._format_lines()
+        
+        self.formatLines()
         self.games = self._get_games()
         if len(self.games) < 2:
             # If there are less than 2 games, it's not a complete match
             self.records = None
             return
-
         #self.players_wins = {'player': 0,'opponent': 0}
-
+        decklist = []
         date = datetime.fromtimestamp(os.path.getmtime(filename))
         turn0 = dict()
         for game in self.games:
+            decklist.append(self.formatCards(game))
             gameNum = self.games.index(game)+1
             turn0['play'] = self._get_on_play(game)
             turn0['startingHands'] = self._get_starting_hands(game)
             winner = self._get_winner(game)
 
+
             #run mtgtop8.py to get deckNames
-            
-            
-            
+            #deckUrls, deckNames = DriverController(self.games, None, MainB, SideB, date)
+
             #insertgame into db
 
     def _get_players(self):
@@ -68,19 +68,26 @@ class matchRecord:
 
         return players
 
-    def _format_cards(self):
+    def formatCards(self, game):
         
+
+
         # Stores cards each player has played
         # The card names are formatted as @[Card Name@:numbers,numbers:@]
         #nums are maybe response time
         # Game actions are @P(player_name) (casts|plays|discards|cycles|reveals) card_pattern
         cardPattern = re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]')
+
+        if self.games.index(game) == 0:
+            #Replace the weird card formatting with a simple Card Name
+            self.match_log = re.sub(cardPattern, r"\g<1>", ' '.join(self.match_log))
+
+
         revealedCardPattern = re.compile(f'@P({self.players[0]}|{self.players[1]}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
         playCardPattern = re.compile(f'@P({self.players[0]}|{self.players[1]}) (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
 
-
-        patternMatches = playCardPattern.findall(self.match_log)
-        revealedMatches = revealedCardPattern.findall(self.match_log)
+        patternMatches = playCardPattern.findall(' '.join(game))
+        revealedMatches = revealedCardPattern.findall(' '.join(game))
         self.knownCards = {f'{self.players[0]}': tuple(), f'{self.players[1]}': tuple()}
 
 
@@ -96,10 +103,9 @@ class matchRecord:
             self.knownCards[revealed[0]] = self.knownCards[revealed[0]] + ((revealed[3]),)
 
 
-        # Replace the weird card formatting with a simple Card Name
-        self.match_log = re.sub(cardPattern, r"\g<1>", self.match_log)
 
-    def _format_lines(self):
+
+    def formatLines(self):
         # Remove non-relevant characters
         filtered_match = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]',self.match_log)
         filtered_match = [re.sub('^.*@P', '', line) for line in filtered_match]
@@ -158,51 +164,9 @@ class matchRecord:
         if wins:
             return (self.players[self.players.index(wins.group(1))], 'won')
         elif conceded:
-            return ([i for i in self.players if i not in self.players[self.players.index(conceded.group(1))]])
+            return ([i for i in self.players if i not in self.players[self.players.index(conceded.group(1))]], 'conceded')
+        elif loses:
+            return (self.players[self.players.index(loses.group(1))], 'loses')
         else:
-            #manual input required
-            pass
-        # if wins:
-        #     return (self.players[self.players.index(wins.group(1))], 'wins')
-        # elif conceded:
-        #     return (self.players[self.players.index(conceded.group(1))], 'conceded')
-        # elif loses:
-        #     return (self.players[self.players.index(loses.group(1))], 'loses')
-        # else:
-            # Sometimes players just leave the match
-            # instead of properly conceding.
-            # In those cases, query the user to check the game log
-            
-            #print('\n'.join(game[-8:]))
-            # question = f"""Who won this game?
-            # (1-{self.records['players']['player']})(2-{self.records['players']['opponent']})(3-draw)(4-unknown) """
-            # answer = input(question).lower().strip()
-            # print("")
-            # while not(answer == "1" or answer == "2" or
-            #         answer == "3" or answer == "4"):
-            #     print("Please see valid answers.")
-            #     answer = input(question).lower().strip()
-            #     print("")
-            # if answer[0] == "1":
-            #     return 'player'
-            # elif answer[0] == "2":
-            #     return 'opponent'
-            # elif answer[0] == "3":
-            #     return 'draw'
-            # else:
-            #     return 'unknown'
-            # return 'unknown'
-
-    # def _get_last_turn(self, game):
-    #     turn_pattern = re.compile('Turn (\d+)')
-    #     # Iterating through finditer, only the last match is saved
-    #     # This might save some memory
-    #     for last_match in turn_pattern.finditer(' '.join(game)):
-    #         pass
-
-    #     return int(last_match.group(1))
-
-    # def get_json(self):
-    #     if not self.records:
-    #         return None
-    #     return json.dumps(self.records, default=str)
+            return 'NA'
+        
