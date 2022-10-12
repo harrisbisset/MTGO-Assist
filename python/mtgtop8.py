@@ -19,36 +19,13 @@ import sys
 #SB = ("Mindbreak Trap", "Leyline of The Void")
 #format = "Vintage"
 
-def main():
-       #sets the base url
-    url = "https://mtgtop8.com/search"
-
-    #sets dc to an abbreviation of the class, so 'DriverController()' doesn't have to be infront of each object
-    dc = DriverController()
-
-    #calls the 'getSite()' object to set the url of the driver
-    dc.getSite(url)
-
-    #calls the 'cookieBanner()' object to clear the cookie banner
-    dc.cookieBanner()
-
-    #calls the 'inputFormData()' object to get all decks to be scraped
-    dc.inputFormData(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
-
-    #gets the deck urls and names from the 'getDeckUrls()' object
-    deckUrls, deckNames = dc.getDeckUrls()
-
-    #loops through numbers 2 to 25, to get the relevant url for each deck, and then get each card from said deck
-    for currentDeck in range(0,25):
-        dc.getSite(deckUrls[currentDeck])
-        dc.getRecord(deckNames[currentDeck])
-    
-    #calls the quit() object to stop the driver
-    dc.quit()
-
 
 class DriverController():
-    def __init__(self):
+    def __init__(self, gameNo, format, MainB, SideB, date):
+
+        #sets url
+        url = "https://mtgtop8.com/search"
+
         #adds options to the webdriver, in this case, to let webpage load, and bypass rate limiting
         driverOptions = webdriver.ChromeOptions()
         driverOptions.add_argument('--ignore-certificate-errors')
@@ -62,6 +39,25 @@ class DriverController():
         chrome_service = Service(chrome_path)
         self.driver = webdriver.Chrome(options=driverOptions, service=chrome_service)
 
+        #calls the 'getSite()' object to set the url of the driver
+        self.getSite(url)
+
+        #calls the 'cookieBanner()' object to clear the cookie banner
+        self.cookieBanner()
+
+        #calls the 'inputFormData()' object to get all decks to be scraped
+        self.inputFormData(gameNo, format, MainB, SideB, date)
+
+        #gets the deck urls and names from the 'getDeckUrls()' object
+        deckUrls, deckNames = self.getDeckUrls()
+
+        #loops through numbers 2 to 25, to get the relevant url for each deck, and then get each card from said deck
+        for currentDeck in range(0,25):
+            self.getSite(deckUrls[currentDeck])
+            self.getRecord(deckNames[currentDeck])
+        
+        #calls the quit() object to stop the driver
+        self.quit()
 
 
     def getSite(self, url):
@@ -134,7 +130,7 @@ class DriverController():
             deckNames.append(url.text)
             deckUrls.append(url.get_attribute('href'))
 
-        print(deckNames)
+        #print(deckNames)
         return deckUrls, deckNames
 
 
@@ -142,8 +138,4 @@ class DriverController():
         #stops the driver
         self.driver.quit()
 
-
-if __name__ == "__main__":
-    pass
-else:
-    main()
+DriverController(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
