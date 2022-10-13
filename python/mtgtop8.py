@@ -21,7 +21,7 @@ import sys
 
 
 class DriverController():
-    def __init__(self, gameNo, format, MainB, SideB, date):
+    def __init__(self, gameNums, format, deckLists, date):
 
         #sets url
         url = "https://mtgtop8.com/search"
@@ -39,25 +39,46 @@ class DriverController():
         chrome_service = Service(chrome_path)
         self.driver = webdriver.Chrome(options=driverOptions, service=chrome_service)
 
-        #calls the 'getSite()' object to set the url of the driver
-        self.getSite(url)
 
-        #calls the 'cookieBanner()' object to clear the cookie banner
-        self.cookieBanner()
+        for gameNum in range(0,gameNums):
+            #calls the 'getSite()' object to set the url of the driver
+            self.getSite(url)
 
-        #calls the 'inputFormData()' object to get all decks to be scraped
-        self.inputFormData(gameNo, format, MainB, SideB, date)
+            if gameNum == 0:
+                #calls the 'cookieBanner()' object to clear the cookie banner
+                self.cookieBanner()
 
-        #gets the deck urls and names from the 'getDeckUrls()' object
-        deckUrls, deckNames = self.getDeckUrls()
+            #calls the 'inputFormData()' object to get all decks to be scraped
+            self.inputFormData(gameNum, format, deckLists, date)
 
-        #loops through numbers 2 to 25, to get the relevant url for each deck, and then get each card from said deck
-        for currentDeck in range(0,25):
-            self.getSite(deckUrls[currentDeck])
-            self.getRecord(deckNames[currentDeck])
+            count = 0
+            while True:
+                try:
+                    self.driver.implicitly_wait(10)
+                    pageload = self.driver.execute_script('return document.readyState;')
+                    print(pageload)
+                    if pageload == 'complete':
+                        break
+                except:
+                    if count == 20:
+                        break
+
+
+            #gets the deck urls and names from the 'getDeckUrls()' object
+            deckUrls, deckNames = self.getDeckUrls()
+
+            #loops through numbers 2 to 25, to get the relevant url for each deck, and then get each card from said deck
+            for currentDeck in range(0,25):
+                self.getSite(deckUrls[currentDeck])
+                self.getRecord(deckNames[currentDeck])
+
         
         #calls the quit() object to stop the driver
         self.quit()
+
+        deckName = max(set(deckNames), key=deckNames.count)
+        return deckName
+
 
 
     def getSite(self, url):
@@ -65,32 +86,44 @@ class DriverController():
         self.driver.get(url)
 
 
-    def inputFormData(self, gameNo, format, MainB, SideB, date):
-        #finds the format <select> tag, and selects the format passed in
-        select_element = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[4]/td[2]/select')
-        select_object = Select(select_element)
-        select_object.select_by_visible_text(format)
+    def inputFormData(self, gameNum, format, deckLists, date):
+        
+        if format is not None:
+            #finds the format <select> tag, and selects the format passed in
+            select_element = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[4]/td[2]/select')
+            select_object = Select(select_element)
+            select_object.select_by_visible_text(format)
 
         '''each match is a best of three, and in games 2 to 3 more cards can be added (SB)
         so if it's not game 1, then SB is added to the cards, and the SB option is checked on the website'''
-        if gameNo > 1:
-            cards = MainB
-        else:
+        print("ACtual Decklists")
+        print(deckLists[0:gameNum+1])
+
+        if gameNum > 0:
             self.driver.find_element(By.XPATH, '//input[@name="SB_check"]').click()
-            cards = MainB + SideB
-        
+
+        cards = deckLists[0:gameNum+1]
+
         #loops through the list of cards, writing each card into the <textarea>
         textarea = self.driver.find_element(By.XPATH, '//textarea[@name="cards"]')
         for listCard in range(0, len(cards)-1):
-            textarea.send_keys(cards[listCard])
+            textarea.send_keys(cards[len(cards)][listCard])
             textarea.send_keys(Keys.RETURN)
 
+        x, y, z = date.split('/')
+        date = z + '/' + y + '/' + x
+
+        print(date)
+        
         #sets the 'date end' to the date of the match, so that deck possibilites from after that game aren't considered (as they don't exist at the time of playing)
         dateTo = self.driver.find_element(By.XPATH, '//input[@name="date_end"]')
         dateTo.send_keys(date)
 
         #clicks the submit button of the form
-        dateTo = self.driver.find_element(By.XPATH, '//td[@colspan="2"]//input[@type="submit"]').click()
+        #submitButton = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[13]/td/input')
+        dateTo = self.driver.find_element(By.XPATH, '//td[@colspan="2"]/input[@type="submit"]').click()
+        
+        #submitButton.click()
 
 
     def getRecord(self, deckName):
@@ -111,8 +144,6 @@ class DriverController():
             #saves info to deckSave.db
 
         #selects the most populous deckName
-        print(decklist)
-        print(deckName)
 
 
     def cookieBanner(self):
@@ -123,14 +154,14 @@ class DriverController():
     def getDeckUrls(self):
         deckUrls = []
         deckNames = []
-
         #loops through all decks on the page and gets the url to them and their name
         for decks in range(2, 27):
             url = self.driver.find_element(By.XPATH, f'//body/div/div/table/tbody/tr/td[2]/form/table/tbody/tr[{decks}]/td[2]/a')
             deckNames.append(url.text)
             deckUrls.append(url.get_attribute('href'))
 
-        #print(deckNames)
+        for i in deckUrls:
+            print(i)
         return deckUrls, deckNames
 
 
@@ -138,4 +169,7 @@ class DriverController():
         #stops the driver
         self.driver.quit()
 
-DriverController(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+
+if __name__ != "__main__":
+    if sys.argv[1] == "":
+        DriverController(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
