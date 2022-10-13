@@ -3,7 +3,7 @@ from collections import defaultdict
 import os.path
 from datetime import datetime
 from socket import getnameinfo
-#from mtgtop8 import DriverController
+from mtgtop8 import DriverController
 
 
 
@@ -39,19 +39,19 @@ class matchRecord:
             self.records = None
             return
         #self.players_wins = {'player': 0,'opponent': 0}
-        decklist = []
+        deckLists = []
         date = datetime.fromtimestamp(os.path.getmtime(filename))
         turn0 = dict()
         for game in self.games:
-            decklist.append(self.formatCards(game))
+            deckLists.append(self.formatCards(game))
             gameNum = self.games.index(game)+1
             turn0['play'] = self._get_on_play(game)
             turn0['startingHands'] = self._get_starting_hands(game)
             winner = self._get_winner(game)
 
-
-            #run mtgtop8.py to get deckNames
-            #deckUrls, deckNames = DriverController(self.games, None, MainB, SideB, date)
+        self.match_log = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.match_log))
+        #run mtgtop8.py to get deckNames
+        deckUrls, deckNames = DriverController(len(self.games), None, deckLists, str(date).replace('-','/').split(' ')[0])
 
             #insertgame into db
 
@@ -69,27 +69,18 @@ class matchRecord:
         return players
 
     def formatCards(self, game):
-        
-
-
         # Stores cards each player has played
         # The card names are formatted as @[Card Name@:numbers,numbers:@]
         #nums are maybe response time
         # Game actions are @P(player_name) (casts|plays|discards|cycles|reveals) card_pattern
         cardPattern = re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]')
 
-        if self.games.index(game) == 0:
-            #Replace the weird card formatting with a simple Card Name
-            self.match_log = re.sub(cardPattern, r"\g<1>", ' '.join(self.match_log))
-
-
-        revealedCardPattern = re.compile(f'@P({self.players[0]}|{self.players[1]}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
-        playCardPattern = re.compile(f'@P({self.players[0]}|{self.players[1]}) (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
+        revealedCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
+        playCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
 
         patternMatches = playCardPattern.findall(' '.join(game))
         revealedMatches = revealedCardPattern.findall(' '.join(game))
         self.knownCards = {f'{self.players[0]}': tuple(), f'{self.players[1]}': tuple()}
-
 
         for actions in patternMatches:
 
@@ -102,7 +93,9 @@ class matchRecord:
         for revealed in revealedMatches:
             self.knownCards[revealed[0]] = self.knownCards[revealed[0]] + ((revealed[3]),)
 
+        game = re.sub(cardPattern, r"\g<1>", ' '.join(game))
 
+        return self.knownCards[actions[0]]
 
 
     def formatLines(self):
