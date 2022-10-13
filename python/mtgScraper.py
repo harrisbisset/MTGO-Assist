@@ -1,4 +1,4 @@
-from match_record import matchRecord
+from matchRecord import matchRecord
 import os
 import argparse
 
