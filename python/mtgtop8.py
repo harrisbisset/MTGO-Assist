@@ -1,8 +1,6 @@
-from selenium_respectful import RespectfulWebdriver
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.select import Select
@@ -12,7 +10,14 @@ import sys
 
 class DriverController():
     def __init__(self, gameNums, format, deckLists, date):
-        
+        self.gameNums = gameNums
+        self.format = format
+        self.deckLists = deckLists
+        self.date = date
+
+
+
+    def run(self):
         #sets url
         url = "https://mtgtop8.com/search"
 
@@ -22,15 +27,16 @@ class DriverController():
         driverOptions.add_argument('--ignore-ssl-errors')
         driverOptions.add_argument('--start-maximized')
         driverOptions.headless = True
-        driverOptions.add_argument('--disable-extensions')
+        #driverOptions.add_argument('--disable-extensions')
 
         #downloads and runs a webdriver, that stops and is uninstalled after the program exits, using the options declared above
         chrome_path = ChromeDriverManager().install()
         chrome_service = Service(chrome_path)
         self.driver = webdriver.Chrome(options=driverOptions, service=chrome_service)
 
+        dictNames = {num:{} for num in range(0,self.gameNums)}
 
-        for gameNum in range(0,gameNums):
+        for gameNum in range(0,self.gameNums):
             #calls the 'getSite()' object to set the url of the driver
             self.getSite(url)
 
@@ -39,30 +45,31 @@ class DriverController():
                 self.cookieBanner()
 
             #calls the 'inputFormData()' object to get all decks to be scraped
-            self.inputFormData(gameNum, format, deckLists, date)
+            self.inputFormData(gameNum, self.format, self.deckLists, self.date)
 
             #gets the deck urls and names from the 'getDeckUrls()' object
-            deckUrls, deckNames = self.getDeckUrls()
+            deckNames, decks = self.getDeckUrls()
+
+            #if there are no decks found, then return deckNames (will have value of 'unknown')
+            if decks == None:
+                self.quit()
+                return deckNames
 
             #calls getDeckName() to create a dictionary of deckNames and %
-            deckNames = self.getDeckNames(deckNames)
+            dictNames[gameNum] = self.getDeckNames(deckNames)
 
-            #loops through numbers 2 to 25, to get the relevant url for each deck, and then get each card from said deck
-            for currentDeck in range(0,25):
-                self.getSite(deckUrls[currentDeck])
-                self.getRecord(deckNames[currentDeck])
+            #loops  to get the relevant url for each deck, and then get each card from said deck
+            # for currentDeck in range(0,decks):
+            #     self.getRecord(deckNames[currentDeck])
         
 
         #calls the quit() object to stop the driver
         self.quit()
 
-        return deckNames
-
+        return dictNames
 
 
     def getSite(self, url):
-        
-        #gets the url passed through
         self.driver.get(url)
 
 
@@ -90,7 +97,6 @@ class DriverController():
        #writes the cards to the textbox
         for deck in cards:
             for listCard in deck:
-                print(listCard)
                 textarea.send_keys(listCard)
                 textarea.send_keys(Keys.RETURN)
 
@@ -107,37 +113,49 @@ class DriverController():
 
 
 
-    def getRecord(self, deckName):
-        decklist = []
+    # def getRecord(self):
+    #     decklist = []
 
-        #finds each card, and adds it to the deckList list
-        cards = self.driver.find_elements(By.XPATH, '//span[@class="L14"]')
-        for card in cards:
-            card = card.text
-            decklist.append(card)
+    #     finds each card, and adds it to the deckList list
+    #     cards = self.driver.find_elements(By.XPATH, '//span[@class="L14"]')
+    #     for card in cards:
+    #         card = card.text
+    #         decklist.append(card)
         
         #save info to deckSave.db
 
 
 
     def cookieBanner(self):
-        
-        #clicks cookie banner, as it obstructs webdriver's view
-        self.driver.find_element(By.XPATH, '//*[@id="cookie_window"]/div[2]/button').click()
+
+        #if cookie banner present, click it, as it obstructs webdriver's view
+        try:
+            self.driver.find_element(By.XPATH, '//*[@id="cookie_window"]/div[2]/button').click()
+        except:
+            pass
 
 
 
     def getDeckUrls(self):
-        deckUrls = []
         deckNames = []
         
-        #loops through all decks on the page and gets their and name
-        for decks in range(2, 27):
-            url = self.driver.find_element(By.XPATH, f'//body/div/div/table/tbody/tr/td[2]/form/table/tbody/tr[{decks}]/td[2]/a')
-            deckNames.append(url.text)
-            deckUrls.append(url.get_attribute('href'))
+        #gets number of decks on page
+        decks = len(self.driver.find_elements(By.XPATH, '//td[@class="S12"]'))/3
+        
+        #if there are no decks on page, then return unknown as deckname, and quit mtgtop8
+        if decks < 1:
+            return 'unknown', None
+        
+        #sets number of decks to 5, if not under 5, so as to reduce time taken
+        if decks > 5:
+            decks = 5
 
-        return deckUrls, deckNames
+        #loops through all decks on the page and gets their and name
+        for deck in range(2, int(decks)+2):
+            url = self.driver.find_element(By.XPATH, f'//body/div/div/table/tbody/tr/td[2]/form/table/tbody/tr[{deck}]/td[2]/a')
+            deckNames.append(url.text)
+
+        return deckNames, int(decks)
 
 
 
@@ -162,7 +180,6 @@ class DriverController():
             dictNames[deckName] = dictNames[deckName] / len(deckNames)
 
         return dictNames
-
 
 
 if __name__ != "__main__":
