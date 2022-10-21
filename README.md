@@ -5,7 +5,7 @@ v1.0.0
 [MIT License](LICENSE)
 
 
-53.5h spent programming
+54.5h spent programming
 
 
 Load App/Reload Button Clicked
