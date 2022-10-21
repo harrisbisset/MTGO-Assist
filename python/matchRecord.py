@@ -7,7 +7,7 @@ from mtgtop8 import DriverController
 
 
 
-class matchRecord:
+class MatchRecord:
     #TODO: find out what happens when a player mulls to zero.
     NUMS_DICT = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7}
 
