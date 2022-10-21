@@ -22,7 +22,7 @@ class matchRecord:
         
         self.records = defaultdict(dict)
         try:
-            self.players = self._get_players()
+            self.players = self.getPlayers()
         except (IndexError, ValueError):
             # There was a problem reading the player names
             # or the match is not 1v1
@@ -33,7 +33,7 @@ class matchRecord:
         #self.records['players'] = dict((v, k) for k, v in self.players.items())
         
         self.formatLines()
-        self.games = self._get_games()
+        self.games = self.getGames()
         if len(self.games) < 2:
             # If there are less than 2 games, it's not a complete match
             self.records = None
@@ -45,9 +45,9 @@ class matchRecord:
         for game in self.games:
             deckLists.append(self.formatCards(game))
             gameNum = self.games.index(game)+1
-            turn0['play'] = self._get_on_play(game)
-            turn0['startingHands'] = self._get_starting_hands(game)
-            winner = self._get_winner(game)
+            turn0['play'] = self.getOnPlay(game)
+            turn0['startingHands'] = self.getStartingHands(game)
+            winner = self.getWinner(game)
 
         self.match_log = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.match_log))
         #run mtgtop8.py to get deckNames
@@ -55,7 +55,7 @@ class matchRecord:
 
             #insertgame into db
 
-    def _get_players(self):
+    def getPlayers(self):
 
         # Find player names and set them as 'player' and 'opponent'.
         players = re.compile('@P(\S+) rolled').findall(self.match_log)
@@ -112,7 +112,7 @@ class matchRecord:
 
     #     return self.match_log[0]
 
-    def _get_games(self):
+    def getGames(self):
         # Breakdown the match into different games.
         # Game 1 is games[0] and so on
         games = list()
@@ -126,13 +126,13 @@ class matchRecord:
 
         return games
 
-    def _get_on_play(self, game):
+    def getOnPlay(self, game):
         # Who is on the play in this game?
         # Returns 'player' or 'opponent'
         on_play = re.compile('(\S+) chooses to play first').search(game[0]).group(1)
         return self.players[self.players.index(on_play)]
 
-    def _get_starting_hands(self, game):
+    def getStartingHands(self, game):
         # Returns a dict containing the number of
         # cards in each player's starting hand
         # at a given game
@@ -145,7 +145,9 @@ class matchRecord:
 
         return starting_hands
 
-    def _get_winner(self, game):
+    def getWinner(self, game):
+
+        #determines the winner or loser
         conceded_pattern = re.compile('(\S+) has conceded')
         wins_pattern = re.compile('(\S+) wins the game')
         loses_pattern = re.compile('(\S+) loses the game')
