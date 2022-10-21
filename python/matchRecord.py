@@ -45,14 +45,24 @@ class MatchRecord:
         for game in self.games:
             deckLists.append(self.formatCards(game))
             gameNum = self.games.index(game)+1
-            turn0['play'] = self.getOnPlay(game)
-            turn0['startingHands'] = self.getStartingHands(game)
+            try:
+                turn0['play'] = self.getOnPlay(game)
+            except:
+                turn0['play'] = 'unknown'
+            
+            try:
+                turn0['startingHands'] = self.getStartingHands(game)
+            except:
+                turn0['startingHands'] = 'unknown'
+            
             winner = self.getWinner(game)
 
+        
         self.match_log = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.match_log))
         #run mtgtop8.py to get deckNames
-        deckUrls, deckNames = DriverController(len(self.games), None, deckLists, str(date).replace('-','/').split(' ')[0])
-
+        instantiateDC = DriverController(len(self.games), None, deckLists, str(date).replace('-','/').split(' ')[0])
+        deckNames = instantiateDC.run()
+        print(deckNames)
             #insertgame into db
 
     def getPlayers(self):
@@ -71,7 +81,7 @@ class MatchRecord:
     def formatCards(self, game):
         # Stores cards each player has played
         # The card names are formatted as @[Card Name@:numbers,numbers:@]
-        #nums are maybe response time
+        # nums are maybe response time
         # Game actions are @P(player_name) (casts|plays|discards|cycles|reveals) card_pattern
         cardPattern = re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]')
 
@@ -95,7 +105,11 @@ class MatchRecord:
 
         game = re.sub(cardPattern, r"\g<1>", ' '.join(game))
 
-        return self.knownCards[actions[0]]
+        #if there are no taken game actions, skip
+        if not patternMatches:
+            return None
+        else:
+            return self.knownCards[actions[0]]
 
 
     def formatLines(self):
