@@ -2,6 +2,7 @@
 #electron
 probs
 1. run py file from electron
-2.
+2. getting a popup box working electron
+3. want to find deck name, but exact deck data might not be accurate
 
-getting a popup box working electron
+
