@@ -9,8 +9,7 @@ import sys
 
 
 class DriverController():
-    def __init__(self, gameNums, format, deckLists, date):
-        self.gameNums = gameNums
+    def __init__(self, format, deckLists, date):
         self.format = format
         self.deckLists = deckLists
         self.date = date
@@ -33,6 +32,8 @@ class DriverController():
         chrome_path = ChromeDriverManager().install()
         chrome_service = Service(chrome_path)
         self.driver = webdriver.Chrome(options=driverOptions, service=chrome_service)
+
+        self.refactorDeckInfo()
 
         dictNames = {num:{} for num in range(0,self.gameNums)}
 
@@ -57,11 +58,6 @@ class DriverController():
 
             #calls getDeckName() to create a dictionary of deckNames and %
             dictNames[gameNum] = self.getDeckNames(deckNames)
-
-            #loops  to get the relevant url for each deck, and then get each card from said deck
-            # for currentDeck in range(0,decks):
-            #     self.getRecord(deckNames[currentDeck])
-        
 
         #calls the quit() object to stop the driver
         self.quit()
@@ -104,25 +100,11 @@ class DriverController():
         x, y, z = date.split('/')
         date = z + '/' + y + '/' + x
 
-        #sets the 'date end' to the date of the match, so that deck possibilites from after that game aren't considered (as they don't exist at the time of playing)
-        dateTo = self.driver.find_element(By.XPATH, '//input[@name="date_end"]')
-        dateTo.send_keys(date)
+        #sets date, so deck possibilites from after that game aren't considered (as they don't exist at the time of playing)
+        self.driver.find_element(By.XPATH, '//input[@name="date_end"]').send_keys(date)
 
         #clicks the submit button of the form
         self.driver.find_element(By.XPATH, '//td[@colspan="2"]/input[@type="submit"]').click()
-
-
-
-    # def getRecord(self):
-    #     decklist = []
-
-    #     finds each card, and adds it to the deckList list
-    #     cards = self.driver.find_elements(By.XPATH, '//span[@class="L14"]')
-    #     for card in cards:
-    #         card = card.text
-    #         decklist.append(card)
-        
-        #save info to deckSave.db
 
 
 
@@ -164,6 +146,59 @@ class DriverController():
         #stops the driver
         self.driver.quit()
 
+
+
+    def refactorDeckInfo(self):
+        cardVals = {}
+        
+
+        for game in self.deckLists:
+            print(game)
+            print('h')
+            for card in game:
+                print(card)
+                print(cardVals)
+                try:
+                    cardVals[card] = cardVals[card]+1
+                except:
+                    cardVals[card] = 0
+        
+        
+        
+        n = len(cardVals)-1
+        cards = ['' for i in range(0,n)]
+        # optimize code, so if the array is already sorted, it doesn't need
+        # to go through the entire process
+        swapped = False
+        # Traverse through all array elements
+        for i in range(n):
+            # range(n) also work but outer loop will
+            # repeat one time more than needed.
+            # Last i elements are already in place
+            for j in range(0, n-i):
+    
+                # traverse the array from 0 to n-i-1
+                # Swap if the element found is greater
+                # than the next element
+                key = self.getNthKey(cardVals,j)
+                if cardVals[key] > cardVals[key+1]:
+                    swapped = True
+                    cardVals[key], cardVals[key+1] = cards[key+1], cards[key]
+            
+            if not swapped:
+                #if the element is already in the right place
+                break
+        
+        print([cards[card] for card in range(0,int(len(cardVals)))])
+        return [cards[card] for card in range(0,int(len(cardVals)))]
+
+    def getNthKey(dictionary, n=0):
+        if n < 0:
+            n += len(dictionary)
+        for i, key in enumerate(dictionary.keys()):
+            if i == n:
+                return key
+        raise IndexError("dictionary index out of range") 
 
 
     def getDeckNames(self, deckNames):
