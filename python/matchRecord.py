@@ -60,7 +60,7 @@ class MatchRecord:
         
         self.match_log = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.match_log))
         #run mtgtop8.py to get deckNames
-        instantiateDC = DriverController(len(self.games), None, deckLists, str(date).replace('-','/').split(' ')[0])
+        instantiateDC = DriverController(None, deckLists, str(date).replace('-','/').split(' ')[0])
         deckNames = instantiateDC.run()
         print(deckNames)
             #insertgame into db
