@@ -34,30 +34,26 @@ class DriverController():
         self.driver = webdriver.Chrome(options=driverOptions, service=chrome_service)
 
         self.refactorDeckInfo()
+        
+        #calls the 'getSite()' object to set the url of the driver
+        self.getSite(url)
 
-        dictNames = {num:{} for num in range(0,self.gameNums)}
+        #calls the 'cookieBanner()' object to clear the cookie banner
+        self.cookieBanner()
 
-        for gameNum in range(0,self.gameNums):
-            #calls the 'getSite()' object to set the url of the driver
-            self.getSite(url)
+        #calls the 'inputFormData()' object to get all decks to be scraped
+        self.inputFormData(self.format, self.deckLists, self.date)
 
-            if gameNum == 0:
-                #calls the 'cookieBanner()' object to clear the cookie banner
-                self.cookieBanner()
+        #gets the deck urls and names from the 'getDeckUrls()' object
+        deckNames, decks = self.getDeckUrls()
 
-            #calls the 'inputFormData()' object to get all decks to be scraped
-            self.inputFormData(gameNum, self.format, self.deckLists, self.date)
+        #if there are no decks found, then return deckNames (will have value of 'unknown')
+        if decks == None:
+            self.quit()
+            return deckNames
 
-            #gets the deck urls and names from the 'getDeckUrls()' object
-            deckNames, decks = self.getDeckUrls()
-
-            #if there are no decks found, then return deckNames (will have value of 'unknown')
-            if decks == None:
-                self.quit()
-                return deckNames
-
-            #calls getDeckName() to create a dictionary of deckNames and %
-            dictNames[gameNum] = self.getDeckNames(deckNames)
+        #calls getDeckName() to create a dictionary of deckNames and %
+        dictNames = self.getDeckNames(deckNames)
 
         #calls the quit() object to stop the driver
         self.quit()
@@ -70,7 +66,7 @@ class DriverController():
 
 
 
-    def inputFormData(self, gameNum, format, deckLists, date):
+    def inputFormData(self, format, deckLists, date):
         
         #format is currently not discerable from the logs, so this should always be true
         if format is not None:
@@ -79,19 +75,15 @@ class DriverController():
             select_object = Select(select_element)
             select_object.select_by_visible_text(format)
 
-        '''each match is a best of three, and in games 2 to 3 more cards can be added (SB)
-        so if it's not game 1, then SB is added to the cards, and the SB option is checked on the website'''
-        if gameNum > 0:
-            self.driver.find_element(By.XPATH, '//input[@name="SB_check"]').click()
+        self.driver.find_element(By.XPATH, '//input[@name="SB_check"]').click()
 
         #includes cards found in games played so far, as the what cards were sideboarded or not is impossible to find out
-        cards = deckLists[0:gameNum+1]
 
         #loops through the list of cards, writing each card into the <textarea>
         textarea = self.driver.find_element(By.XPATH, '//textarea[@name="cards"]')
        
        #writes the cards to the textbox
-        for deck in cards:
+        for deck in deckLists:
             for listCard in deck:
                 textarea.send_keys(listCard)
                 textarea.send_keys(Keys.RETURN)
