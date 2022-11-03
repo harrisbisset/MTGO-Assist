@@ -1,26 +1,44 @@
-import random
+from random import seed
+from random import randint
+
 letters = ['a', 'b', 'c']
-#dict = {letters[number-1 % 3] + str(number):{letters[num1-1 % 3] + str(num1):'' for num1 in range(1,5)} for number in range(1,5)}
-#print(dict)
+dict = {(letters[int(number / 3)] + str(number % 3)):{(letters[int(number / 3)] + str(number % 3)):'' for number in range(0,9)} for number in range(0,9)}
+#dict = {'a0':{'a0:':'', 'a1':'', etc.}, 'a1':{etc.}, etc.}
 
-if (number / 3) > 1:
+seed(1)
 
-dict = {letters[int(number/3)] for number in range(1,10)}
+#goes through each number
+for number in range(0,9):
 
-
-dict = {'a1':{'a1:':'', 'a2':''}, 'a2':''}
-
-
-for b in range(1,9):
+    #goes through each 9*9 grid
     for i in dict:
-        num = getRandNum(1,9)
-        letter = 'a'
-        while num > 3:
-            num = num - 3
-            letter = chr(ord(letter)+1)
 
-        for x in dict:
-            if x[0] == i[0] or x[1] == i[1]:
-                for n in x:
-                    if (n[0] == i[0] or n[1] == i[1]) and n != b:
-                        dict[i][str(num) + letter] = b
+        #gets a random square in the grid
+        num = randint(0, 8) % 3
+
+        #gets the row of the grid
+        letter = letters[num]
+
+        #a2
+        total = letter + str(num)
+        
+
+        #check box
+        for rowcol in range(0,9):
+            if dict[i][(letters[int(rowcol / 3)] + str(rowcol % 3))] == dict[i][total] and total != rowcol:
+                pass 
+
+        #check column
+        for cols in [letters[int(grid / 3)] + str(grid % 3) for grid in range(0,9)]:
+            #print(cols)
+            for col in range(0,2):
+                if dict[i][total] == dict[cols][letters[col]+str(col)] and total != cols:
+                    pass
+        
+        #check row
+        for rows in [letter + str(grid % 3) for grid in range(0,9)]:
+            for row in range(0,2):
+                if dict[i][total] == dict[letters[row]+str(row)][rows] and (total != rows or i != letters[row]+str(row)):
+                    pass
+
+
