@@ -1,11 +1,24 @@
 <html>
   <head>
-    <title>Hello World Application</title>
+
+    <title>MTGO Assist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="mainStyles.css">
+
   </head>
   <body>
-    <h1>Hello World</h1>
+
+    <section id="header">
+      <h1>Welcome back <script>//Get User's Name</script></h1>
+    </section>
+
     <button id="pyBtnSync">Sync</button><br>
-    <button id="btnReload" style="display:none;">Reload</button>
+    
+    <section id="lowerLoad">
+      <div id="loadMore">
+        <button id="pyBtnMore">Load More</button>
+      </div>
+    </section>
 
     <script>
       require('./renderer.js')
