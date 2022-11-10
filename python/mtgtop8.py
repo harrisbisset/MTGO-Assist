@@ -10,6 +10,8 @@ import sys
 
 class DriverController():
     def __init__(self, format, deckLists, date):
+
+        #initilises the classes's variables
         self.format = format
         self.deckLists = deckLists
         self.date = date
@@ -26,39 +28,41 @@ class DriverController():
         driverOptions.add_argument('--ignore-ssl-errors')
         driverOptions.add_argument('--start-maximized')
         driverOptions.headless = True
-        #driverOptions.add_argument('--disable-extensions')
 
+        #check validity of comment
         #downloads and runs a webdriver, that stops and is uninstalled after the program exits, using the options declared above
         chrome_path = ChromeDriverManager().install()
         chrome_service = Service(chrome_path)
         self.driver = webdriver.Chrome(options=driverOptions, service=chrome_service)
 
-        self.refactorDeckInfo()
+        #decklist is refactored into a sorted dictionary
+        decklist = self.refactorDecklist()
         
-        #calls the 'getSite()' object to set the url of the driver
+        #calls the 'getSite()' method to set the url of the driver
         self.getSite(url)
 
-        #calls the 'cookieBanner()' object to clear the cookie banner
+        #calls the 'cookieBanner()' method to clear the cookie banner
         self.cookieBanner()
 
-        #calls the 'inputFormData()' object to get all decks to be scraped
-        self.inputFormData(self.format, self.deckLists, self.date)
+        #calls the 'inputFormData()' method to get all decks to be scraped
+        self.inputFormData(self.format, decklist, self.date)
 
-        #gets the deck urls and names from the 'getDeckUrls()' object
-        deckNames, decks = self.getDeckUrls()
+        #gets the deck urls and names from the 'getDeckUrls()' method
+        deckNames, deckNum = self.getDeckUrls()
 
         #if there are no decks found, then return deckNames (will have value of 'unknown')
-        if decks == None:
+        if deckNum == None:
             self.quit()
             return deckNames
 
         #calls getDeckName() to create a dictionary of deckNames and %
         dictNames = self.getDeckNames(deckNames)
 
-        #calls the quit() object to stop the driver
+        #calls the quit() method to stop the driver
         self.quit()
 
         return dictNames
+
 
 
     def getSite(self, url):
@@ -71,9 +75,9 @@ class DriverController():
         #format is currently not discerable from the logs, so this should always be true
         if format is not None:
             #finds the format <select> tag, and selects the format passed in
-            select_element = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[4]/td[2]/select')
-            select_object = Select(select_element)
-            select_object.select_by_visible_text(format)
+            selectElement = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[4]/td[2]/select')
+            selectObject = Select(selectElement)
+            selectObject.select_by_visible_text(format)
 
         self.driver.find_element(By.XPATH, '//input[@name="SB_check"]').click()
 
@@ -140,57 +144,73 @@ class DriverController():
 
 
 
-    def refactorDeckInfo(self):
+    def refactorDecklist(self):
         cardVals = {}
         
-
         for game in self.deckLists:
-            print(game)
-            print('h')
             for card in game:
-                print(card)
-                print(cardVals)
+
+                #may need to make start val 1
+
+                #if the card isn't in the dictionary, then it's added with a value of 0
+                #if it already exists, then it's vlaue is increased by 1
+                #this value represents the number of the same card
                 try:
                     cardVals[card] = cardVals[card]+1
                 except:
                     cardVals[card] = 0
         
+        #deckLists is no longer required
+        del self.deckLists
+
+        return self.bubbleSort(cardVals)
         
-        
+
+
+    def bubbleSort(self, cardVals):
+        #gets n, where n is the number of elements to be sorted
         n = len(cardVals)-1
-        cards = ['' for i in range(0,n)]
-        # optimize code, so if the array is already sorted, it doesn't need
-        # to go through the entire process
+
+        cards = cardVals
         swapped = False
-        # Traverse through all array elements
+
+        #raverse through all array elements
         for i in range(n):
-            # range(n) also work but outer loop will
-            # repeat one time more than needed.
-            # Last i elements are already in place
+            #range(n) also work but outer loop will
+            #repeat one time more than needed.
+            #last i elements are already in place
             for j in range(0, n-i):
     
-                # traverse the array from 0 to n-i-1
-                # Swap if the element found is greater
-                # than the next element
+                #traverse the array from 0 to n-i-1
+                
+                #gets key of dictionary
                 key = self.getNthKey(cardVals,j)
+                
+                #swaps if the element is greater than the next element
                 if cardVals[key] > cardVals[key+1]:
                     swapped = True
+
+                    #reorders dictionaries
                     cardVals[key], cardVals[key+1] = cards[key+1], cards[key]
+                    cards[key], cards[key+1] = cardVals[key+1], cardVals[key]
             
+
+            #if the element is already in the right place
             if not swapped:
-                #if the element is already in the right place
                 break
         
-        print([cards[card] for card in range(0,int(len(cardVals)))])
-        return [cards[card] for card in range(0,int(len(cardVals)))]
+        #print([cards[card] for card in range(0,int(len(cardVals)))])
+        return cardVals
 
-    def getNthKey(dictionary, n=0):
+
+
+    def getNthKey(self, dictionary, n=0):
         if n < 0:
             n += len(dictionary)
         for i, key in enumerate(dictionary.keys()):
             if i == n:
                 return key
-        raise IndexError("dictionary index out of range") 
+
 
 
     def getDeckNames(self, deckNames):
@@ -207,6 +227,7 @@ class DriverController():
             dictNames[deckName] = dictNames[deckName] / len(deckNames)
 
         return dictNames
+
 
 
 if __name__ != "__main__":
