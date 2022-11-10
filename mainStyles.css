@@ -1,0 +1,71 @@
+/* headings */
+
+h1 {
+    color:black;
+}
+
+/* IDs */
+
+#topbar {
+    width:30%;
+    float:left;
+}
+
+#navbar {
+    width:70%;
+    float:right;
+}
+
+
+
+#lowHeader {
+    color:black;
+}
+
+#pyBtnSync {
+    color:black;
+}
+
+#databaseSection {
+    color:black;
+}
+
+#lowerLoad {
+    width: 100%;
+    text-align: center;
+}
+
+#loadMore {
+    display: inline-block;
+}
+
+#pyBtnMore {
+    color:black;
+}
+
+/* classes */
+
+.listBar {
+  list-style-type: none;
+  margin: 0;
+  padding: 5;
+  overflow: hidden;
+  background-color: rgb(134, 134, 134);
+}
+
+.listBarItem {
+  float: left;
+}
+
+.listBarItem a {
+  display: block;
+  color: rgb(0, 0, 0);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+.listBarItem a:hover {
+  background-color: rgb(125, 214, 169);
+}
