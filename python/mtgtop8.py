@@ -61,6 +61,7 @@ class DriverController():
         #calls the quit() method to stop the driver
         self.quit()
 
+        print(dictNames)
         return dictNames
 
 
@@ -158,7 +159,7 @@ class DriverController():
                 try:
                     cardVals[card] = cardVals[card]+1
                 except:
-                    cardVals[card] = 0
+                    cardVals[card] = 1
         
         #deckLists is no longer required
         del self.deckLists
@@ -185,14 +186,15 @@ class DriverController():
                 
                 #gets key of dictionary
                 key = self.getNthKey(cardVals,j)
+                upKey = self.getNthKey(cardVals,j+1)
                 
                 #swaps if the element is greater than the next element
-                if cardVals[key] > cardVals[key+1]:
+                if cardVals[key] > cardVals[upKey]:
                     swapped = True
 
                     #reorders dictionaries
-                    cardVals[key], cardVals[key+1] = cards[key+1], cards[key]
-                    cards[key], cards[key+1] = cardVals[key+1], cardVals[key]
+                    cardVals[key], cardVals[upKey] = cards[upKey], cards[key]
+                    cards[key], cards[upKey] = cardVals[upKey], cardVals[key]
             
 
             #if the element is already in the right place
