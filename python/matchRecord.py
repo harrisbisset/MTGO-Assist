@@ -2,8 +2,8 @@ import re
 from collections import defaultdict
 import os.path
 from datetime import datetime
-from socket import getnameinfo
 from mtgtop8 import DriverController
+import pandas as pd
 
 
 
@@ -12,6 +12,10 @@ class MatchRecord:
     NUMS_DICT = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7}
 
     def __init__(self, filename, player=None):
+
+        #to move to mtgScraper
+
+
         self.player = player
         with open(filename, 'rb') as f:
             self.match_log = f.read().decode(encoding='utf-8', errors='replace')
@@ -33,8 +37,12 @@ class MatchRecord:
         #self.records['players'] = dict((v, k) for k, v in self.players.items())
         
         self.formatLines()
-        self.games = self.getGames()
-        if len(self.games) < 2:
+
+
+        gameNums = self.getGames()
+
+
+        if gameNums < 2:
             # If there are less than 2 games, it's not a complete match
             self.records = None
             return
@@ -65,6 +73,9 @@ class MatchRecord:
         print(deckNames)
             #insertgame into db
 
+
+
+
     def getPlayers(self):
 
         # Find player names and set them as 'player' and 'opponent'.
@@ -77,6 +88,9 @@ class MatchRecord:
             self.opponent = list(players)[0]
 
         return players
+
+
+
 
     def formatCards(self, game):
         # Stores cards each player has played
@@ -112,12 +126,14 @@ class MatchRecord:
             return self.knownCards[actions[0]]
 
 
+
     def formatLines(self):
         # Remove non-relevant characters
         filtered_match = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]',self.match_log)
         filtered_match = [re.sub('^.*@P', '', line) for line in filtered_match]
         filtered_match = [line for line in filtered_match if len(line) > 3]
         self.match_log = filtered_match
+
 
     # def _get_match_ID(self):
     #     # Match_ID looks like it's the first line of the filtered log.
@@ -126,25 +142,24 @@ class MatchRecord:
 
     #     return self.match_log[0]
 
+
+
     def getGames(self):
         # Breakdown the match into different games.
         # Game 1 is games[0] and so on
-        games = list()
-        game_i = 0
-        for i, line in enumerate(self.match_log):
-            if "chooses to play" in line:
-                games.append(self.match_log[game_i:i])
-                game_i = i
-        games.append(self.match_log[game_i:-1])
-        games.pop(0)
+        games = pd.Series(self.match_log).value_counts()
+        print(games.get('chooses to play'))
+        return 
 
-        return games
+
 
     def getOnPlay(self, game):
         # Who is on the play in this game?
         # Returns 'player' or 'opponent'
         on_play = re.compile('(\S+) chooses to play first').search(game[0]).group(1)
         return self.players[self.players.index(on_play)]
+
+
 
     def getStartingHands(self, game):
         # Returns a dict containing the number of
@@ -158,6 +173,8 @@ class MatchRecord:
             starting_hands[k] = self.NUMS_DICT[v]
 
         return starting_hands
+
+
 
     def getWinner(self, game):
 
