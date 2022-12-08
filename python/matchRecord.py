@@ -1,35 +1,30 @@
 import re
-from collections import defaultdict
 import os.path
 from datetime import datetime
 from mtgtop8 import DriverController
-import pandas as pd
-
-
 
 class MatchRecord:
     #TODO: find out what happens when a player mulls to zero.
     NUMS_DICT = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7}
 
-    def __init__(self, filename, player=None):
-
-        #to move to mtgScraper
-
-
+    def __init__(self, player):
         self.player = player
+
+    def run(self, filename):
+
         with open(filename, 'rb') as f:
-            self.match_log = f.read().decode(encoding='utf-8', errors='replace')
+            self.matchLog = f.read().decode(encoding='utf-8', errors='replace')
             #Unknown characters are replaced by \ufffd (those question marks)
-
-
-        #python mtg_scraper.py C:\Users\harri\AppData\Local\Apps\2.0\Data\JWMNX0QY.YK3\AGMD182G.AAW\mtgo..tion_92a8f782d852ef89_0003.0004_4d4c5524cb8c51a2\Data\AppFiles\E8BC386C00E942D40363482907EEDEEA
         
-        self.records = defaultdict(dict)
+        self.records = dict()
+        deckLists = []
+        date = datetime.fromtimestamp(os.path.getmtime(filename))
+        turn0 = dict()
+
         try:
             self.players = self.getPlayers()
         except (IndexError, ValueError):
-            # There was a problem reading the player names
-            # or the match is not 1v1
+            #If there was a problem reading the player namesor the match is not 1v1
             self.records = None
             return
         
@@ -38,21 +33,18 @@ class MatchRecord:
         
         self.formatLines()
 
+        gameNum = self.getGames()
 
-        gameNums = self.getGames()
 
-
-        if gameNums < 2:
+        if gameNum < 2:
             # If there are less than 2 games, it's not a complete match
             self.records = None
             return
         #self.players_wins = {'player': 0,'opponent': 0}
-        deckLists = []
-        date = datetime.fromtimestamp(os.path.getmtime(filename))
-        turn0 = dict()
-        for game in self.games:
+        
+
+        for game in self.matchLog:
             deckLists.append(self.formatCards(game))
-            gameNum = self.games.index(game)+1
             try:
                 turn0['play'] = self.getOnPlay(game)
             except:
@@ -66,7 +58,7 @@ class MatchRecord:
             winner = self.getWinner(game)
 
         
-        self.match_log = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.match_log))
+        self.matchLog = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.matchLog))
         #run mtgtop8.py to get deckNames
         instantiateDC = DriverController(None, deckLists, str(date).replace('-','/').split(' ')[0])
         deckNames = instantiateDC.run()
@@ -79,14 +71,14 @@ class MatchRecord:
     def getPlayers(self):
 
         # Find player names and set them as 'player' and 'opponent'.
-        players = re.compile('@P(\S+) rolled').findall(self.match_log)
-
+        players = re.compile('@P(\S+) rolled').findall(self.matchLog)
+        
         if players is not None:
             self.player, self.opponent = list(players)
         else:
             players.discard(self.player)
             self.opponent = list(players)[0]
-
+        print(players)
         return players
 
 
@@ -129,27 +121,12 @@ class MatchRecord:
 
     def formatLines(self):
         # Remove non-relevant characters
-        filtered_match = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]',self.match_log)
-        filtered_match = [re.sub('^.*@P', '', line) for line in filtered_match]
-        filtered_match = [line for line in filtered_match if len(line) > 3]
-        self.match_log = filtered_match
-
-
-    # def _get_match_ID(self):
-    #     # Match_ID looks like it's the first line of the filtered log.
-    #     #not eventID
-
-
-    #     return self.match_log[0]
-
-
-
-    def getGames(self):
-        # Breakdown the match into different games.
-        # Game 1 is games[0] and so on
-        games = pd.Series(self.match_log).value_counts()
-        print(games.get('chooses to play'))
-        return 
+        filteredMatch = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]',self.matchLog)
+        filteredMatch = [re.sub('^.*@P', '', line) for line in filteredMatch]
+        filteredMatch = re.split('chooses to play (foo|bar|baz)', ' '.join([line for line in filteredMatch if len(line) > 3]))
+        print(filteredMatch)
+        [game for game in range(len(re.findall('chooses to play', ' '.join(self.matchLog))))]
+        self.matchLog = filteredMatch
 
 
 
@@ -195,4 +172,3 @@ class MatchRecord:
             return (self.players[self.players.index(loses.group(1))], 'loses')
         else:
             return 'NA'
-        
