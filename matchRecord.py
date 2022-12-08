@@ -3,8 +3,6 @@ import os.path
 from datetime import datetime
 from mtgtop8 import DriverController
 
-
-
 class MatchRecord:
     #TODO: find out what happens when a player mulls to zero.
     NUMS_DICT = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7}
@@ -15,7 +13,7 @@ class MatchRecord:
         self.player = player
 
         with open(filename, 'rb') as f:
-            self.match_log = f.read().decode(encoding='utf-8', errors='replace')
+            self.matchLog = f.read().decode(encoding='utf-8', errors='replace')
             #Unknown characters are replaced by \ufffd (those question marks)
 
 
@@ -48,7 +46,7 @@ class MatchRecord:
         #self.players_wins = {'player': 0,'opponent': 0}
         
 
-        for game in range(gameNum):
+        for game in self.matchLog:
             deckLists.append(self.formatCards(game))
             try:
                 turn0['play'] = self.getOnPlay(game)
@@ -63,7 +61,7 @@ class MatchRecord:
             winner = self.getWinner(game)
 
         
-        self.match_log = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.match_log))
+        self.matchLog = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.matchLog))
         #run mtgtop8.py to get deckNames
         instantiateDC = DriverController(None, deckLists, str(date).replace('-','/').split(' ')[0])
         deckNames = instantiateDC.run()
@@ -76,7 +74,7 @@ class MatchRecord:
     def getPlayers(self):
 
         # Find player names and set them as 'player' and 'opponent'.
-        players = re.compile('@P(\S+) rolled').findall(self.match_log)
+        players = re.compile('@P(\S+) rolled').findall(self.matchLog)
         
         if players is not None:
             self.player, self.opponent = list(players)
@@ -126,16 +124,12 @@ class MatchRecord:
 
     def formatLines(self):
         # Remove non-relevant characters
-        filtered_match = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]',self.match_log)
-        filtered_match = [re.sub('^.*@P', '', line) for line in filtered_match]
-        filtered_match = re.split('chooses to play', ' '.join([line for line in filtered_match if len(line) > 3]))
-        print(filtered_match)
-        [game for game in range(len(re.findall('chooses to play', ' '.join(self.match_log))))]
-        self.match_log = filtered_match
-
-    def getGames(self):
-        print(re.findall('chooses to play', ' '.join(self.match_log)))
-        return len(re.findall('chooses to play', ' '.join(self.match_log)))
+        filteredMatch = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]',self.matchLog)
+        filteredMatch = [re.sub('^.*@P', '', line) for line in filteredMatch]
+        filteredMatch = re.split('chooses to play (foo|bar|baz)', ' '.join([line for line in filteredMatch if len(line) > 3]))
+        print(filteredMatch)
+        [game for game in range(len(re.findall('chooses to play', ' '.join(self.matchLog))))]
+        self.matchLog = filteredMatch
 
 
 
@@ -181,4 +175,3 @@ class MatchRecord:
             return (self.players[self.players.index(loses.group(1))], 'loses')
         else:
             return 'NA'
-        
