@@ -13,12 +13,10 @@ class DriverController():
         self.format = format
         self.deckLists = deckLists
         self.date = date
-
-
-
-    def returnDictNames(self):
+    
+    def startup(self):
         #sets url
-        url = "https://mtgtop8.com/search"
+        self.url = "https://mtgtop8.com/search"
 
         #adds options to the webdriver, in this case, to let webpage load, and bypass rate limiting
         driverOptions = webdriver.ChromeOptions()
@@ -35,8 +33,10 @@ class DriverController():
         self.driver = webdriver.Chrome(options=driverOptions, service=chrome_service)
 
 
+    def returnDictNames(self):
+
         #calls the 'getSite()' method to open the url through the driver
-        self.getSite(url)
+        self.getSite()
 
         #calls the 'cookieBanner()' method to try and clear the cookie banner
         self.clearCookieBanner()
@@ -63,8 +63,8 @@ class DriverController():
 
 
 
-    def getSite(self, url):
-        self.driver.get(url)
+    def getSite(self):
+        self.driver.get(self.url)
 
 
 
@@ -182,7 +182,7 @@ class DriverController():
 
 
 if __name__ == "__main__":
-    start_time = time.time()
     dc = DriverController(None, (("Fatal Push", "Fatal Push", "Swamp", "Thraben Inspector"), ("Plains", "Swamp", "Fatal Push"), ()), "02/02/2016")
+    dc.startup()
     dc.returnDictNames()
     dc.quit()
