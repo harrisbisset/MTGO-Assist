@@ -29,10 +29,6 @@ class DriverController():
 
 
     def returnDictNames(self, format, deckLists, date):
-        self.format = format
-        self.deckLists = deckLists
-        self.date = date
-
         #calls the 'getSite()' method to open the url through the driver
         self.getSite()
 
@@ -40,7 +36,7 @@ class DriverController():
         self.clearCookieBanner()
 
         #calls the 'inputFormData()' method to get all decks to be scraped
-        self.inputFormData(self.format, self.refactorDecklist(), self.date)
+        self.inputFormData(format, self.refactorDecklist(deckLists), date)
 
         #gets the deck urls and names from the 'getDeckUrls()' method
         deckNames = self.getDeckNames()
@@ -134,10 +130,10 @@ class DriverController():
 
 
 
-    def refactorDecklist(self):
+    def refactorDecklist(self, deckLists):
         cards = {}
         
-        for game in self.deckLists:
+        for game in deckLists:
             for card in game:
 
                 #may need to make start val 1
@@ -151,7 +147,7 @@ class DriverController():
                     cards[card] = 1
         
         #deckLists is no longer required
-        del self.deckLists
+        del deckLists
 
         #return self.bubbleSort(cardVals)
         return cards
