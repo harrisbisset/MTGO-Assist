@@ -6,7 +6,6 @@ def main(path, player):
     fileList = [f for f in os.listdir(path) if f.endswith('.dat')]
     match = MatchRecord(player)
     dc = DriverController()
-    dc.startup()
     for filename in fileList:
         decklists, date = match.run(f'{path}/{filename}')
         dc.returnDictNames(None, decklists, date)
