@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.keys import Keys
-import time
+import sys
 
 
 class DriverController():
@@ -34,23 +34,18 @@ class DriverController():
         chrome_service = Service(chrome_path)
         self.driver = webdriver.Chrome(options=driverOptions, service=chrome_service)
 
-        print("--- %s seconds ---" % (time.time() - start_time))
 
         #calls the 'getSite()' method to open the url through the driver
         self.getSite(url)
-        print("--- %s seconds ---" % (time.time() - start_time))
 
         #calls the 'cookieBanner()' method to try and clear the cookie banner
         self.clearCookieBanner()
-        print("--- %s seconds ---" % (time.time() - start_time))
 
         #calls the 'inputFormData()' method to get all decks to be scraped
         self.inputFormData(self.format, self.refactorDecklist(), self.date)
-        print("--- %s seconds ---" % (time.time() - start_time))
 
         #gets the deck urls and names from the 'getDeckUrls()' method
         deckNames = self.getDeckNames()
-        print("--- %s seconds ---" % (time.time() - start_time))
 
         #if there are no decks found, then return deckNames (will have value of 'unknown')
         if deckNames == 'unknown':
@@ -59,10 +54,9 @@ class DriverController():
 
         #calls getDeckName() to create a dictionary of deckNames and %
         dictNames = self.getDictNames(deckNames)
-        print("--- %s seconds ---" % (time.time() - start_time))
 
-        #calls the quit() method to stop the driver
-        self.quit()
+        #commented out, as driver doesn't need to be stopped until final
+        #self.quit()
 
         print(dictNames)
         return dictNames
@@ -89,12 +83,12 @@ class DriverController():
 
         #loops through the list of cards, writing each card into the <textarea>
         textarea = self.driver.find_element(By.XPATH, '//textarea[@name="cards"]')
-       
+
        #writes the cards to the textbox
         for card in deckList:
-            textarea.send_keys(card)
-            textarea.send_keys(Keys.RETURN)
+            textarea.send_keys(card + Keys.RETURN)
 
+        #remormat date in matchRecord
         #reformats the date
         x, y, z = date.split('/')
         date = z + '/' + y + '/' + x
@@ -190,6 +184,5 @@ class DriverController():
 if __name__ == "__main__":
     start_time = time.time()
     dc = DriverController(None, (("Fatal Push", "Fatal Push", "Swamp", "Thraben Inspector"), ("Plains", "Swamp", "Fatal Push"), ()), "02/02/2016")
-    print("--- %s seconds ---" % (time.time() - start_time))
     dc.returnDictNames()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    dc.quit()
