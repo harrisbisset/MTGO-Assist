@@ -1,21 +1,18 @@
 from matchRecord import MatchRecord
+from mtgtop8 import DriverController
 import os
-import argparse
-
 
 def main(path, player):
-    file_list = [f for f in os.listdir(path) if f.endswith('.dat')]
-    match = MatchRecord(player=player)
-    for filename in file_list:
-        match.run(f'{path}/{filename}')
-    match.quit()
+    fileList = [f for f in os.listdir(path) if f.endswith('.dat')]
+    match = MatchRecord(player)
+    dc = DriverController()
+    dc.startup()
+    for filename in fileList:
+        decklists, date = match.run(f'{path}/{filename}')
+        dc.returnDictNames(None, decklists, date)
+    dc.quit()
     
     
     
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog='mtgo_scraper')
-    parser.add_argument('--player', nargs='?', default=None)
-    parser.add_argument('path', nargs=1, type=str, default='.', help='Path to data folder.')
-    args = parser.parse_args()
-    print('Running...')
-    main(args.path[0], args.player)
+    main('C:\Users\harri\AppData\Local\Apps\2.0\Data\JWMNX0QY.YK3\AGMD182G.AAW\mtgo..tion_92a8f782d852ef89_0003.0004_4d4c5524cb8c51a2\Data\AppFiles\E8BC386C00E942D40363482907EEDEEA', None)
