@@ -15,4 +15,10 @@ V2
 Loop
   2 sec getSite
   0 sec clearCookieBanner
-  
+  4 sec inputFormData
+  0 sec getDeckName
+  2 sec getDictNames
+
+9.9 initial
+7 else
+savings still for date
