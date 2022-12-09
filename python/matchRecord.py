@@ -1,50 +1,52 @@
 import re
-import os.path
-from datetime import datetime
-from mtgtop8 import DriverController
 
 class MatchRecord:
-    #TODO: find out what happens when a player mulls to zero.
-    NUMS_DICT = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7}
 
     def __init__(self, player):
+        #sets self.player to player (will be none if player name isn't known)
         self.player = player
 
-    def run(self, filename):
 
-        with open(filename, 'rb') as f:
-            self.matchLog = f.read().decode(encoding='utf-8', errors='replace')
-            #Unknown characters are replaced by \ufffd (those question marks)
-        
-        self.records = dict()
-        deckLists = []
-        date = datetime.fromtimestamp(os.path.getmtime(filename))
+
+    def getDecklists(self, filename):
+        decklists = []
         turn0 = dict()
 
+
+        #gets matchLog
+        with open(filename, 'rb') as f:
+            #unknown characters are replaced by \ufffd (those question marks)
+            self.matchLog = f.read().decode(encoding='utf-8', errors='replace')
+        
+
+        #tries to create self.players
         try:
-            self.players = self.getPlayers()
+            self.getPlayers()
+            #if there is a problem reading the player names or the match is not 1v1 (fie invalid)
         except (IndexError, ValueError):
-            #If there was a problem reading the player namesor the match is not 1v1
-            self.records = None
-            return
-        
-        # Record players as {'player': 'player_name', 'opponent': 'opp_name}
-        #self.records['players'] = dict((v, k) for k, v in self.players.items())
-        
+            return None
+
+
+        #formats self.matchLog
         self.formatLines()
 
-        gameNum = self.getGames()
 
-
-        if gameNum < 2:
-            # If there are less than 2 games, it's not a complete match
-            self.records = None
-            return
-        #self.players_wins = {'player': 0,'opponent': 0}
+        #if there are less than 2 games, it's not a complete match
+        if len(self.matchLog) < 2:
+            return None
         
 
+        #loops through each game
         for game in self.matchLog:
-            deckLists.append(self.formatCards(game))
+            
+            #gets decklists of game
+            gameDecklists = self.getDeckLists(game)
+            if decklists is None:
+                return None
+            decklists.append(gameDecklists)
+
+
+            #reformat
             try:
                 turn0['play'] = self.getOnPlay(game)
             except:
@@ -58,75 +60,75 @@ class MatchRecord:
             winner = self.getWinner(game)
 
         
-        self.matchLog = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(self.matchLog))
-        #run mtgtop8.py to get deckNames
-        instantiateDC = DriverController(None, deckLists, str(date).replace('-','/').split(' ')[0])
-        deckNames = instantiateDC.run()
-        print(deckNames)
-            #insertgame into db
+        return decklists            
 
 
 
 
     def getPlayers(self):
-
-        # Find player names and set them as 'player' and 'opponent'.
+        #finds all players
         players = re.compile('@P(\S+) rolled').findall(self.matchLog)
         
-        if players is not None:
-            self.player, self.opponent = list(players)
+        #if the player hasn't given their name, then name randomised
+        if self.player is None:
+            self.player, opponent = list(players)
         else:
             players.discard(self.player)
-            self.opponent = list(players)[0]
-        print(players)
-        return players
+            opponent = list(players)[0]
+        
+        self.players = [self.player, opponent]
+        del self.player
 
 
 
 
-    def formatCards(self, game):
-        # Stores cards each player has played
-        # The card names are formatted as @[Card Name@:numbers,numbers:@]
-        # nums are maybe response time
-        # Game actions are @P(player_name) (casts|plays|discards|cycles|reveals) card_pattern
-        cardPattern = re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]')
+    def getDeckLists(self, game):
+        decklists = {self.players[0]: tuple(), self.players[1]: tuple()}
 
-        revealedCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
+        #stores cards each player has played, revealed, discarded, cycled
+        #game actions are formatted as @P(player_name) (casts|plays|discards|cycles|reveals)
+        #card names are formatted as @[Card Name@:numbers,numbers:@]
         playCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
+        revealedCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
 
-        patternMatches = playCardPattern.findall(' '.join(game))
+
+        #finds matched patterns
+        playCardMatches = playCardPattern.findall(' '.join(game))
         revealedMatches = revealedCardPattern.findall(' '.join(game))
-        self.knownCards = {f'{self.players[0]}': tuple(), f'{self.players[1]}': tuple()}
 
-        for actions in patternMatches:
 
-            #if card has been revealed, and has interacted with the game, remove it from revealedMatches
+        #if there are no taken game actions, exit
+        if not playCardMatches:
+            return None
+
+
+        for actions in playCardMatches:
+
+            #if a card has been revealed, and has interacted with the game, remove it from revealedMatches
             if actions[3] in revealedMatches:
                 revealedMatches.pop(revealedMatches.index(actions[3]))
 
-            self.knownCards[actions[0]] = self.knownCards[actions[0]] + ((actions[3]),)
-            
+            decklists[actions[0]] += ((actions[3]),)
+
+
         for revealed in revealedMatches:
-            self.knownCards[revealed[0]] = self.knownCards[revealed[0]] + ((revealed[3]),)
+            decklists[revealed[0]] += ((revealed[3]),)
 
-        game = re.sub(cardPattern, r"\g<1>", ' '.join(game))
 
-        #if there are no taken game actions, skip
-        if not patternMatches:
-            return None
-        else:
-            return self.knownCards[actions[0]]
+        return decklists
 
 
 
     def formatLines(self):
-        # Remove non-relevant characters
+        #removes non-relevant characters
         filteredMatch = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]',self.matchLog)
         filteredMatch = [re.sub('^.*@P', '', line) for line in filteredMatch]
+        filteredMatch = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(filteredMatch))
+
+        #splits games int format: [[gameAction1, gameAction2], [gameAction1], etc.]
         filteredMatch = re.split('chooses to play (foo|bar|baz)', ' '.join([line for line in filteredMatch if len(line) > 3]))
-        print(filteredMatch)
-        [game for game in range(len(re.findall('chooses to play', ' '.join(self.matchLog))))]
         self.matchLog = filteredMatch
+
 
 
 
@@ -142,12 +144,13 @@ class MatchRecord:
         # Returns a dict containing the number of
         # cards in each player's starting hand
         # at a given game
+        numDict = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7}
 
         starting_hands = [(self.players[self.players.index(match_obj.group(1).split()[0])], match_obj.group(2)) for match_obj in [re.compile('(.+) begins the game with (\w+) cards').search(line) for line in game] if match_obj]
 
         starting_hands = dict(starting_hands)
         for k, v in starting_hands.items():
-            starting_hands[k] = self.NUMS_DICT[v]
+            starting_hands[k] = numDict[v]
 
         return starting_hands
 
