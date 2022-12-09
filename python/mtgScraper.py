@@ -14,7 +14,7 @@ def main(path, player):
     for filename in fileList:
 
         #gets decklists from MatchRecord
-        decklists = match.run(f'{path}/{filename}')
+        decklists, matchLog, gameRecord, onPlay, startingHands = match.run(f'{path}/{filename}')
 
         #if the file is valid
         if decklists is not None:
@@ -32,7 +32,7 @@ def main(path, player):
     #closes webdriver
     dc.quit()
     
-def sqllite(decklists, date, dictNames):
+def sqllite(decklists, date, dictNames, matchLog, gameRecord, onPlay, startingHands):
     pass
 
 
