@@ -14,7 +14,7 @@ def main(path, player):
     for filename in fileList:
 
         #gets decklists from MatchRecord
-        decklists, matchLog, gameRecord, onPlay, startingHands = match.run(f'{path}/{filename}')
+        decklists, matchLog, gameRecord, onPlay, startingHands = match.getDecklists(f'{path}/{filename}')
 
         #if the file is valid
         if decklists is not None:
