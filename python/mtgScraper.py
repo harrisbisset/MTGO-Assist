@@ -9,7 +9,8 @@ def main(path, player):
     #opens connection
     openConn()
     
-    #gets
+    #gets last ID
+    ID = sqlliteGetID()
     
     #initilises modules
     match = MatchRecord(player)
@@ -25,6 +26,7 @@ def main(path, player):
 
         #if the file is valid
         if decklists is not None:
+            ID += 1
             
             #gets and reformats date
             x, y, z = datetime.fromtimestamp(os.path.getmtime(filename).split('/'))
@@ -34,7 +36,7 @@ def main(path, player):
             dictNames = dc.returnDictNames(None, decklists, date)
 
             #sends info to sqliite db
-            sqlliteDriverData(date, dictNames)
+            sqlliteDriverData(ID, date, dictNames)
 
     #closes webdriver
     dc.quit()
@@ -43,9 +45,9 @@ def main(path, player):
     closeConn()
 
 def sqlliteGetID():
-    pass
+    return ID
     
-def sqlliteDriverData(date, dictNames):
+def sqlliteDriverData(ID, date, dictNames):
     pass
 
 def openConn():
