@@ -77,7 +77,6 @@ class MatchRecord:
             opponent = list(players)[0]
         
         self.players = [self.player, opponent]
-        del self.player
 
 
 
@@ -175,3 +174,8 @@ class MatchRecord:
             return (self.players[self.players.index(loses.group(1))], 'loses')
         else:
             return 'NA'
+        
+        
+def sqlliteInsert(decklists, turn0, winner):
+    #self.matchlog, self.players
+    pass
