@@ -5,5 +5,8 @@ probs
 2. getting a popup box working electron
 3. want to find deck name, but exact deck data might not be accurate (most populus cards + g1 preference)
 4. making mtgoptop8 more efficent
-5.
+5. args for driver
+6. cookie banner clicker
+7. arg passing js
+8. 
 
