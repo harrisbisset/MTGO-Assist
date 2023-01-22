@@ -5,4 +5,4 @@ v1.0.0
 [MIT License](LICENSE)
 
 
-61h spent programming
+67.5h spent programming
