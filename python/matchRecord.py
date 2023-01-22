@@ -1,66 +1,60 @@
 import re
+import os.path
 
 class MatchRecord:
 
-    def __init__(self, player):
-        #sets self.player to player (will be none if player name isn't known)
-        self.player = player
-
+    def __init__(self):
+        pass
 
 
     def getDecklists(self, filename):
         decklists = []
-        turn0 = dict()
-
+        extra = {'play':'', 'startingHands':'', 'winner':''}
 
         #gets matchLog
         with open(filename, 'rb') as f:
             #unknown characters are replaced by \ufffd (those question marks)
             self.matchLog = f.read().decode(encoding='utf-8', errors='replace')
-        
 
         #tries to create self.players
         try:
             self.getPlayers()
             #if there is a problem reading the player names or the match is not 1v1 (fie invalid)
         except (IndexError, ValueError):
-            return None
-
+            return None, None, None, None
 
         #formats self.matchLog
         self.formatLines()
 
-
         #if there are less than 2 games, it's not a complete match
         if len(self.matchLog) < 2:
-            return None
-        
+            return None, None, None, None
+
 
         #loops through each game
         for game in self.matchLog:
+            if not game:
+                break
             
-            #gets decklists of game
+            #gets decklists from game
             gameDecklists = self.getDeckLists(game)
             if decklists is None:
-                return None
+                return None, None, None, None
             decklists.append(gameDecklists)
 
-
-            #reformat
             try:
-                turn0['play'] = self.getOnPlay(game)
+                extra['play'] = self.getOnPlay(game)
             except:
-                turn0['play'] = 'unknown'
+                extra['play'] = 'unknown'
             
             try:
-                turn0['startingHands'] = self.getStartingHands(game)
+                extra['startingHands'] = self.getStartingHands(game)
             except:
-                turn0['startingHands'] = 'unknown'
+                extra['startingHands'] = 'unknown'
             
-            winner = self.getWinner(game)
+            extra['winner'] = self.getWinner(game)
 
-        
-        return decklists            
+        return decklists, extra, self.matchLog, self.players
 
 
 
@@ -69,20 +63,39 @@ class MatchRecord:
         #finds all players
         players = re.compile('@P(\S+) rolled').findall(self.matchLog)
         
-        #if the player hasn't given their name, then name randomised
-        if self.player is None:
-            self.player, opponent = list(players)
-        else:
-            players.discard(self.player)
-            opponent = list(players)[0]
+        #the first player in the game log is always the user
+        self.players = list(players)
+
+
+
+    def formatLines(self):
+        #formats self.matchLog in [['random text', 'random text', 'player rolled', 'player rolled'], [game 1], [game 2...]] and removes noise
         
-        self.players = [self.player, opponent]
+        #removes all non-ascii characters and some non-random characters
+        filteredMatch = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]', self.matchLog)
+        filteredMatch = [re.sub('^.*@P', '@P', line) for line in filteredMatch if len(line) > 4]
+        
+        #splits by game
+        txt = ' '.join(filteredMatch)
+        regex = f'@P{self.players[0]} joined the game @P{self.players[1]} joined the game'
+        filteredMatch = re.compile(regex).split(txt)
+
+        #splits by turn
+        regex = f'Turn [1-9]: {self.players[0]}|Turn [1-9]: {self.players[1]}|Turn [1-5][0-9]: {self.players[0]}|Turn [1-5][0-9]: {self.players[0]}'
+        filteredMatch = [re.compile(regex).split(turn) for turn in filteredMatch]
+        
+        #removes last random characters
+        filteredMatch = [[re.split('(@P)', turn) for turn in game] for game in filteredMatch]
+        filteredMatch = [[[re.sub(r'@P|[^\x00-\x7F]', '', line) for line in turn if len(line) > 4] for turn in game] for game in filteredMatch]
+        
+        del filteredMatch[0]
+        self.matchLog = filteredMatch
 
 
 
 
     def getDeckLists(self, game):
-        decklists = {self.players[0]: tuple(), self.players[1]: tuple()}
+        decklists = {self.players[0]: dict(), self.players[1]: dict()}
 
         #stores cards each player has played, revealed, discarded, cycled
         #game actions are formatted as @P(player_name) (casts|plays|discards|cycles|reveals)
@@ -90,43 +103,35 @@ class MatchRecord:
         playCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
         revealedCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
 
-
-        #finds matched patterns
-        playCardMatches = playCardPattern.findall(' '.join(game))
-        revealedMatches = revealedCardPattern.findall(' '.join(game))
-
-
-        #if there are no taken game actions, exit
-        if not playCardMatches:
-            return None
+        for turn in game:
+            #finds matched patterns
+            playCardMatches = playCardPattern.findall(' '.join(turn))
+            revealedMatches = revealedCardPattern.findall(' '.join(turn))
 
 
-        for actions in playCardMatches:
+            for actions in playCardMatches:
 
-            #if a card has been revealed, and has interacted with the game, remove it from revealedMatches
-            if actions[3] in revealedMatches:
-                revealedMatches.pop(revealedMatches.index(actions[3]))
+                #if a card has been revealed, and has interacted with the game, remove it from revealedMatches
+                if actions[3] in revealedMatches:
+                    revealedMatches.pop(revealedMatches.index(actions[3]))
 
-            decklists[actions[0]] += ((actions[3]),)
+                #adds card to decklists
+                if actions[3] in decklists[actions[0]]:
+                    decklists[actions[0]][actions[3]] += 1
+                else:
+                    decklists[actions[0]].update({actions[3]:1})
 
 
-        for revealed in revealedMatches:
-            decklists[revealed[0]] += ((revealed[3]),)
+            for revealed in revealedMatches:
+
+                #adds card to decklists
+                if revealed[3] in decklists[revealed[0]]:
+                    decklists[revealed[0]][revealed[3]] += 1
+                else:
+                    decklists[revealed[0]].update({revealed[3]:1})
 
 
         return decklists
-
-
-
-    def formatLines(self):
-        #removes non-relevant characters
-        filteredMatch = re.split(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff\ufffd\.\{\}\|\\=#\^><$]',self.matchLog)
-        filteredMatch = [re.sub('^.*@P', '', line) for line in filteredMatch]
-        filteredMatch = re.sub(re.compile('@\[([a-zA-Z\s,\'-]+)@:[0-9,]+:@\]'), r"\g<1>", ' '.join(filteredMatch))
-
-        #splits games int format: [[gameAction1, gameAction2], [gameAction1], etc.]
-        filteredMatch = re.split('chooses to play (foo|bar|baz)', ' '.join([line for line in filteredMatch if len(line) > 3]))
-        self.matchLog = filteredMatch
 
 
 
@@ -134,48 +139,39 @@ class MatchRecord:
     def getOnPlay(self, game):
         # Who is on the play in this game?
         # Returns 'player' or 'opponent'
-        on_play = re.compile('(\S+) chooses to play first').search(game[0]).group(1)
-        return self.players[self.players.index(on_play)]
+        onPlay = re.compile('(\S+) chooses to play first').search(' '.join(game[0])).group(1)
+        return self.players[self.players.index(onPlay)]
+
 
 
 
     def getStartingHands(self, game):
-        # Returns a dict containing the number of
-        # cards in each player's starting hand
-        # at a given game
-        numDict = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7}
 
-        starting_hands = [(self.players[self.players.index(match_obj.group(1).split()[0])], match_obj.group(2)) for match_obj in [re.compile('(.+) begins the game with (\w+) cards').search(line) for line in game] if match_obj]
+        #format [(player1, cards), (player2, cards)]
+        regex = re.compile(f'({self.players[0]}|{self.players[1]}) begins the game with (\w+) cards in hand | ({self.players[0]}|{self.players[1]}) puts.+on the bottom of their library and begins the game with (\w+) cards in hand')
+        startingHands = re.findall(regex, ' '.join(game[0]))
+        startingHands = [tuple(b for b in i if len(b) > 1) for i in startingHands]
+        return startingHands
 
-        starting_hands = dict(starting_hands)
-        for k, v in starting_hands.items():
-            starting_hands[k] = numDict[v]
-
-        return starting_hands
 
 
 
     def getWinner(self, game):
 
         #determines the winner or loser
-        conceded_pattern = re.compile('(\S+) has conceded')
-        wins_pattern = re.compile('(\S+) wins the game')
-        loses_pattern = re.compile('(\S+) loses the game')
+        concededPattern = re.compile('(\S+) has conceded')
+        winsPattern = re.compile('(\S+) wins the game')
+        losesPattern = re.compile('(\S+) loses the game')
 
-        conceded = conceded_pattern.search(' '.join(game))
-        wins = wins_pattern.search(' '.join(game))
-        loses = loses_pattern.search(' '.join(game))
+        conceded = concededPattern.search(' '.join([' '.join(i) for i in game]))
+        wins = winsPattern.search(' '.join([' '.join(i) for i in game]))
+        loses = losesPattern.search(' '.join([' '.join(i) for i in game]))
 
         if wins:
-            return (self.players[self.players.index(wins.group(1))], 'won')
+            return self.players[self.players.index(wins.group(1))][0]
         elif conceded:
-            return ([i for i in self.players if i not in self.players[self.players.index(conceded.group(1))]], 'conceded')
+            return [i for i in self.players if i not in self.players[self.players.index(conceded.group(1))]][0]
         elif loses:
-            return (self.players[self.players.index(loses.group(1))], 'loses')
+            return self.players[self.players.index(loses.group(1))][0]
         else:
             return 'NA'
-        
-        
-def sqlliteInsert(decklists, turn0, winner):
-    #self.matchlog, self.players
-    pass
