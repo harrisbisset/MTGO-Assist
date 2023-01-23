@@ -2,44 +2,14 @@ window.$ = window.jQuery = require('jquery');
 
 function runPythonSync(){
     var pyshell =  require('python-shell');
-    var mtgoName = ''
-    var mtgoPass = ''
     var highestRecordID
-    var manual = false
 
     let cmdDataLoad = {
       mode: 'text',
       pythonOptions: ['-u'],
       args: ['getDataSync']
     }
-
-    pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
-      if (results[0] !== ''){
-        const Dialogs = require('dialogs')
-        const dialogs = Dialogs()
-        dialogs.confirm(`Would you like to scrape data from the ${results[0]} account (password is saved as ${results[1]})?`, ok => {
-          if (ok !== undefined){
-            mtgoName = results[0]
-            mtgoPass = results[1]
-          } else {
-            dialogs.confirm('Would you like to login manually?', ok => {
-              if (ok === undefined) {
-                dialogs.alert('Please input login details into MTGO', ok=>{});
-                manual = true
-              } else {
-                dialogs.alert('Please provide username and password for mtgo account', ok => {
-                  dialogs.prompt('Username', ok => {
-                    mtgoName = ok
-                    dialogs.prompt('Password', ok => {
-                      mtgoPass = ok
-                    });
-                  });
-                });
-              }
-            });
-          }
-        });
-      }
+    
       highestRecordID = results[2]
 
       if  (err)  throw err;
@@ -50,7 +20,7 @@ function runPythonSync(){
     let syncDataLoad = {
       mode: 'text',
       pythonOptions: ['-u'],
-      args: [manual, mtgoName, mtgoPass, highestRecordID]
+      args: [highestRecordID]
     }
 
     pyshell.PythonShell.run('./python/sync.py', syncDataLoad, function  (err, results)  {
@@ -73,21 +43,6 @@ function runPythonSync(){
     });
 }
 
-function runPythonCreateUser(userName, userPass, mtgoName, mtgoPass){
-  var pyshell =  require('python-shell');
-  
-  let cmdDataLoad = {
-    mode: 'text',
-    pythonOptions: ['-u'],
-    args: ['createUser', userName, userPass, mtgoName, mtgoPass]
-  }
-  pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
-      if  (err)  throw err;
-      console.log('dbCMD.py finished.');
-      console.log('results: ', results);
-    });
-}
-
 function runPythonDB(){
     var pyshell =  require('python-shell');
     var pjson = require('./package.json');
@@ -99,55 +54,6 @@ function runPythonDB(){
     }
 
     pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
-
-      //if the table userDetails doesn't exist, then renderer.js prompts the user to enter them
-      if (results[0] === "unconnectedDB"){
-        const Dialogs = require('dialogs')
-        const dialogs = Dialogs()
-        dialogs.confirm('Please create account for MTGO Assist', ok => {
-          console.log('result:', ok);
-          if (ok !== undefined) {
-            dialogs.prompt('Username', ok => {
-              console.log('result:', ok);
-              var userName = ok
-              if (ok !== undefined) {
-                dialogs.promptPassword('Password', ok => {
-                  console.log('result:', ok);
-                  var userPass = ok
-                  if (ok !== undefined) {
-                  dialogs.alert('Account Created', ok =>{
-
-                    //linking an MTGO account is optional
-                      dialogs.confirm('Would you like to link your MTGO account?', ok => {
-                        console.log('result:', ok);
-                        if (ok !== undefined) {
-                          dialogs.prompt('Username', ok => {
-                            console.log('result:', ok);
-                            var mtgoName = ok
-                            if (ok !== undefined) {
-                              dialogs.promptPassword('Password', ok => {
-                                console.log('result:', ok);
-                                var mtgoPass = ok
-                                dialogs.alert('Account Linked', ok =>{
-
-                                  //sends data to db
-                                  runPythonCreateUser(userName, userPass, mtgoName, mtgoPass);
-                                });
-                              });
-                            };
-                          });
-                        }else if(ok === undefined){
-                          runPythonCreateUser(userName, userPass, "", "");
-                        }
-                      });
-                    });
-                  };
-                });
-              };
-            });
-          };
-        });
-      };
       
       if (results[2] === "unconnectedInt"){
         unInt();
