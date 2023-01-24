@@ -1,8 +1,14 @@
 window.addEventListener('DOMContentLoaded', () => {
     
     var pyshell =  require('python-shell');
-
-    pyshell.PythonShell.run('./python/dbCMD.py', function  (err, results)  {
+    
+    let args = {
+      mode: 'text',
+      pythonOptions: ['-u'],
+      args: [checkUserExists]
+    }
+    
+    pyshell.PythonShell.run('./python/dbCMD.py', args, function  (err, results)  {
       if  (err)  throw err;
       console.log('dbCMD.py finished.');
     });
