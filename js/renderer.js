@@ -5,12 +5,6 @@ function runPythonSync(){
     var pyshell =  require('python-shell');
     var highestRecordID
 
-    let cmdDataLoad = {
-      mode: 'text',
-      pythonOptions: ['-u'],
-      args: ['getDataSync']
-    }
-
     let syncDataLoad = {
       mode: 'text',
       pythonOptions: ['-u'],
@@ -20,8 +14,8 @@ function runPythonSync(){
     pyshell.PythonShell.run('./python/sync.py', syncDataLoad, function  (err, results)  {
 
       //if 'unconnectedInt returned'
-      if (results[0] === "unconnectedInt") {
-        unInt()
+      if (results[0] === "unconnected") {
+        
       } else if (results[0] === "license") {
         const Dialogs = require('dialogs')
         const dialogs = Dialogs()
@@ -62,12 +56,6 @@ function runPythonDB(){
       console.log('dbCMD.py finished.');
       console.log('results: ', results);
     });
-}
-
-function unInt(){
-  //disables user's ability to run the main program, as it requires interent access, until internet connection is established
-  document.getElementById('#pyBtnSync').style.display = "none";
-  document.getElementById('#btnReload').style.display = "block";
 }
 
 document.querySelector('#pyBtnSync').addEventListener('click', () => {
