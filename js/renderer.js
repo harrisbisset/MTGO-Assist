@@ -10,13 +10,6 @@ function runPythonSync(){
       pythonOptions: ['-u'],
       args: ['getDataSync']
     }
-    
-      highestRecordID = results[2]
-
-      if  (err)  throw err;
-      console.log('dbCMD.py finished.');
-      console.log('results: ', results);
-    });
 
     let syncDataLoad = {
       mode: 'text',
