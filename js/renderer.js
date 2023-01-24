@@ -1,3 +1,4 @@
+//not sure if needed
 window.$ = window.jQuery = require('jquery');
 
 function runPythonSync(){
