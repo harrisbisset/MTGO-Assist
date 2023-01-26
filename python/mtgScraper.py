@@ -12,8 +12,10 @@ class Scraper():
 
         #opens connection
         self.openConn()
+
+        #checks if database exists
+        self.checkDB()
         
-        highestID = self.sqlliteGetID()
         top8Conn = self.checkInternet()
         
         #initilises modules
@@ -25,11 +27,10 @@ class Scraper():
 
             #gets decklists from MatchRecord
             #other stored data is implemented into database in MatchRecord
-            decklists, extra = match.getDecklists(f'{path}/{filename}')
+            decklists, extra, matchlog, players = match.getDecklists(f'{path}/{filename}')
 
             #if the file is valid
             if decklists is not None:
-                highestID += 1
                 
                 #gets and reformats date
                 x, y, z = datetime.fromtimestamp(os.path.getmtime(filename).split('/'))
@@ -42,7 +43,7 @@ class Scraper():
                     dictNames = "NA"
                     
                 #sends info to sqliite db
-                self.sqlliteDriverData(filename, date, dictNames, extra, decklists)
+                self.sqlliteDriverData(filename, date, dictNames, extra, decklists, players, matchlog)
 
         #closes webdriver
         dc.quit()
@@ -75,10 +76,9 @@ class Scraper():
 
 
 
-    def sqlliteGetID(self):
-        #connects to and creates a record with the user's inputted information (from the dialog box)
+    def checkDB(self):
         try:
-            highestID = self.cursor.execute("SELECT MAX(matchID) FROM matches;")
+            self.cursor.execute("SELECT MAX(matchID) FROM matches;")
         except:
             
             #creates formats table
@@ -88,7 +88,7 @@ class Scraper():
             #inserts formats into the formats table
             formats = ['Standard', 'Pioneer', 'Modern', 'Legacy', 'Vintage']
             for elem in formats:
-                self.cursor.execute(f"INSERT INTO formats(format) VALUES({elem});")
+                self.cursor.execute(f"INSERT INTO formats(format) VALUES('{elem}');")
             self.userConnection.commit()
 
             #creates the matches table
@@ -115,22 +115,30 @@ class Scraper():
                                 winner TEXT);""")
             self.userConnection.commit()
 
-            #there are no records, so highestID is set to -1
-            highestID = -1
-
-        return highestID
         
 
 
 
-    def sqlliteDriverData(self, filename, date, dictNames, extra, decklists):
+    def sqlliteDriverData(self, filename, date, dictNames, extra, decklists, players, matchlog):
+
+        #inserts match into database
         self.cursor.execute(f"""INSERT INTO matches(filename, players, decknames, 
                                                     decklistP1, decklistP2, firstTurns, 
                                                     winLoss, format, type, date) 
                                                     
-                                                    VALUES({filename}, {extra['players']}, {dictNames}, 
-                                                    {decklists[0]}, {decklists[1]}, {extra[]}, 
-                                                    {extra[]}, NA, Constructed, {date});""")
+                                                    VALUES('{filename}', '{players}', '{dictNames}', 
+                                                    '{decklists[0]}', '{decklists[1]}', '{extra['play']}', 
+                                                    '{extra['winner']}', NA, Constructed, '{date}');""")
+        self.userConnection.commit()
+
+        matchID = self.cursor.execute("SELECT MAX(matchID) FROM matches;")
+
+        #inserts games into database
+        for game in matchlog:
+            self.cursor.execute(f"""INSERT INTO games(matchID, gameNum, gameLog, winner) 
+                                                
+                                                        VALUES('{matchID}', '{matchlog.index(game)}', '{matchlog[game]}', 
+                                                        '{extra['winner'][matchlog.index(game)]}');""")
 
     
 
