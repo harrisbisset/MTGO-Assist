@@ -1,5 +1,4 @@
 import re
-import os.path
 
 class MatchRecord:
 
@@ -9,7 +8,7 @@ class MatchRecord:
 
     def getDecklists(self, filename):
         decklists = []
-        extra = {'play':'', 'startingHands':'', 'winner':''}
+        extra = {'play':[], 'startingHands':[], 'winner':[]}
 
         #gets matchLog
         with open(filename, 'rb') as f:
@@ -43,16 +42,16 @@ class MatchRecord:
             decklists.append(gameDecklists)
 
             try:
-                extra['play'] = self.getOnPlay(game)
+                extra['play'].append(self.getOnPlay(game))
             except:
-                extra['play'] = 'unknown'
+                extra['play'].append('unknown')
             
             try:
-                extra['startingHands'] = self.getStartingHands(game)
+                extra['startingHands'].append(self.getStartingHands(game))
             except:
                 extra['startingHands'] = 'unknown'
             
-            extra['winner'] = self.getWinner(game)
+            extra['winner'].append(self.getWinner(game))
 
         return decklists, extra, self.matchLog, self.players
 
