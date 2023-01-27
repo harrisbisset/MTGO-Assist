@@ -57,18 +57,10 @@ class DriverController():
 
 
 
-    def inputFormData(self, format, deckList, date):
-        
-        #format is currently not discerable from the logs, so this should always be true
-        if format is not None:
-            #finds the format <select> tag, and selects the format passed in
-            selectElement = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[4]/td[2]/select')
-            selectObject = Select(selectElement)
-            selectObject.select_by_visible_text(format)
-
-        self.driver.find_element(By.XPATH, '//input[@name="SB_check"]').click()
+    def inputFormData(self, deckList, date):
 
         #includes cards found in games played so far, as the what cards were sideboarded or not is impossible to find out
+        self.driver.find_element(By.XPATH, '//input[@name="SB_check"]').click()
 
         #loops through the list of cards, writing each card into the <textarea>
         textarea = self.driver.find_element(By.XPATH, '//textarea[@name="cards"]')
@@ -108,7 +100,7 @@ class DriverController():
         
         #if there are no decks on page, then return unknown as deckname, and quit DriverController() 
         if decks < 1:
-            return 'unknown', None
+            return 'unknown'
         
         #sets number of decks to 5, if not under 5, so as to reduce time taken
         if decks > 5:
@@ -135,8 +127,6 @@ class DriverController():
         for game in deckLists:
             for card in game:
 
-                #may need to make start val 1
-
                 #if the card isn't in the dictionary, then it's added with a value of 0
                 #if it already exists, then it's vlaue is increased by 1
                 #this value represents the number of the same card
@@ -148,7 +138,6 @@ class DriverController():
         #deckLists is no longer required
         del deckLists
 
-        #return self.bubbleSort(cardVals)
         return cards
         
 
