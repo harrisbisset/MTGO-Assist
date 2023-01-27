@@ -1,0 +1,101 @@
+CLASS DRIVER_CONTROLLER:
+
+    CONSTRUCTOR(self)
+        self.url = "https://mtgtop8.com/search"
+
+        self.driver = webdriver.connect()
+    
+    METHODS(self)
+	
+    	method RETURN_DICT_NAMES(self, deckLists, date):
+            
+            self.GET_SITE()
+            self.CLEAR_COOKIE_BANNER()
+            self.INPUT_FORM_DATA(format, self.REFACTOR_DECKLISTS(deckLists), date)
+
+            deckNames = self.GET_DECK_NAMES()
+
+            if deckNames are unknown:
+                self.QUIT()
+                return deckNames
+
+            dictNames = self.GET_DICT_NAMES(deckNames)
+
+            return dictNames
+
+
+
+    	method GET_SITE(self):
+            self.driver.get(self.url)
+
+
+
+    	method INPUT_FORM_DATA(self, deckList, date):
+            
+            self.driver.find(SIDEBOARD).click()
+
+            textarea = self.driver.find(CARDS)
+
+            for card in deckList:
+                textarea.type(card + RETURN)
+
+
+            self.driver.find(DATE_ELEMENT).type(date)
+
+            self.driver.find(SUBMIT).click()
+
+
+
+        method clearCookieBanner(self):
+            self.driver.find(COOKIE_WINDOW).click()
+
+
+
+    	method getDeckNames(self):
+            deckNames = array()
+        
+            decks = length(self.driver.find_all(DECKS_ON_PAGE))
+        
+            if decks < 1:
+            	return 'unknown'
+        
+            if decks > 5:
+            	decks = 5
+
+            for deck = 1 To length(decks):
+            	deckNames.append(self.driver.find(DECK_NAME).text)
+
+            return deckNames
+
+
+
+    	method QUIT_DC(self):
+            self.driver.quit()
+
+
+
+    	method REFACTOR_DECKLISTS(self, deckLists):
+            cards = associative_array()
+        
+            for game in deckLists:
+            	for card in game:
+                    if cards[card] exists:
+                        cards[card] = cards[card]+1
+                    else:
+                        cards[card] = 1
+
+            return cards
+        
+
+
+    	method GET_DICT_NAMES(self, deckNames):
+	
+            dictNames = {deckName:0 for deckName in deckNames}
+
+            for deckName in deckNames:
+                dictNames[deckName] = dictNames[deckName] + 1
+
+            for deckName in dictNames:
+                dictNames[deckName] = dictNames[deckName] / length(deckNames)
+
+        return dictNames
