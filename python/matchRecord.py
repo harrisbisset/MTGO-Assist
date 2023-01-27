@@ -37,8 +37,8 @@ class MatchRecord:
             
             #gets decklists from game
             gameDecklists = self.getDeckLists(game)
-            if decklists is None:
-                return None, None, None, None
+            if gameDecklists is None:
+                break
             decklists.append(gameDecklists)
 
             #gets player on play
@@ -51,7 +51,7 @@ class MatchRecord:
             try:
                 extra['startingHands'].append(self.getStartingHands(game))
             except:
-                extra['startingHands'] = 'unknown'
+                extra['startingHands'].append('unknown')
             
             #gets winner of game
             extra['winner'].append(self.getWinner(game))
