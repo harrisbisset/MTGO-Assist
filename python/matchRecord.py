@@ -41,16 +41,19 @@ class MatchRecord:
                 return None, None, None, None
             decklists.append(gameDecklists)
 
+            #gets player on play
             try:
                 extra['play'].append(self.getOnPlay(game))
             except:
                 extra['play'].append('unknown')
             
+            #get number of cards in each player's hand
             try:
                 extra['startingHands'].append(self.getStartingHands(game))
             except:
                 extra['startingHands'] = 'unknown'
             
+            #gets winner of game
             extra['winner'].append(self.getWinner(game))
 
         return decklists, extra, self.matchLog, self.players
