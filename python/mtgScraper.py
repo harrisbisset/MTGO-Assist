@@ -110,7 +110,8 @@ class Scraper():
             self.cursor.execute("""CREATE TABLE games(
                                 gamesID INTEGER NOT NULL PRIMARY KEY, 
                                 FOREIGN KEY(matchID) REFERENCES matches(matchID) NOT NULL, 
-                                gameNum INTEGER NOT NULL, 
+                                gameNum INTEGER NOT NULL,
+                                startingHands BLOB NOT NULL,
                                 gameLog TEXT NOT NULL, 
                                 winner TEXT);""")
             self.userConnection.commit()
@@ -135,9 +136,9 @@ class Scraper():
 
         #inserts games into database
         for game in matchlog:
-            self.cursor.execute(f"""INSERT INTO games(matchID, gameNum, gameLog, winner) 
+            self.cursor.execute(f"""INSERT INTO games(matchID, gameNum, startinghands, gameLog, winner) 
                                                 
-                                                        VALUES('{matchID}', '{matchlog.index(game)}', '{matchlog[game]}', 
+                                                        VALUES('{matchID}', '{matchlog.index(game)}', '{extra['startingHands']}','{matchlog[game]}', 
                                                         '{extra['winner'][matchlog.index(game)]}');""")
 
     
