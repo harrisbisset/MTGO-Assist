@@ -33,12 +33,13 @@ class Scraper():
             if decklists is not None:
                 
                 #gets and reformats date
-                x, y, z = datetime.fromtimestamp(os.path.getmtime(filename).split('/'))
+                dateTime = str(datetime.fromtimestamp(os.path.getmtime(path + '\\' + filename)))
+                x, y, z = dateTime.split(' ')[0].split('-')
                 date = z + '/' + y + '/' + x
 
                 if top8Conn == True:
                     #gets the possible deck names from DriverController
-                    dictNames = dc.returnDictNames(None, decklists, date)
+                    dictNames = dc.returnDictNames(decklists, date)
                 else:
                     dictNames = "NA"
                     
@@ -57,6 +58,7 @@ class Scraper():
     def openConn(self):
         self.userConnection = sqlite3.connect("./database/mtgoAssist.db")
         self.cursor = self.userConnection.cursor()
+        self.userConnection.execute("PRAGMA foreign_keys = 1")
 
 
 
@@ -86,7 +88,7 @@ class Scraper():
             self.userConnection.commit()
 
             #inserts formats into the formats table
-            formats = ['Standard', 'Pioneer', 'Modern', 'Legacy', 'Vintage']
+            formats = ['Standard', 'Pioneer', 'Modern', 'Legacy', 'Vintage', 'NA']
             for elem in formats:
                 self.cursor.execute(f"INSERT INTO formats(format) VALUES('{elem}');")
             self.userConnection.commit()
@@ -101,7 +103,7 @@ class Scraper():
                                 decklistP2 BLOB NOT NULL, 
                                 firstTurns BLOB NOT NULL, 
                                 winLoss BLOB, 
-                                FOREIGN KEY(format) REFERENCES formats(formatName), 
+                                format REFERENCES formats(format), 
                                 type TEXT, 
                                 date TEXT NOT NULL);""")
             self.userConnection.commit()
@@ -109,7 +111,7 @@ class Scraper():
             #creates games table
             self.cursor.execute("""CREATE TABLE games(
                                 gamesID INTEGER NOT NULL PRIMARY KEY, 
-                                FOREIGN KEY(matchID) REFERENCES matches(matchID) NOT NULL, 
+                                matchID REFERENCES matches(matchID) NOT NULL, 
                                 gameNum INTEGER NOT NULL,
                                 startingHands BLOB NOT NULL,
                                 gameLog TEXT NOT NULL, 
@@ -120,16 +122,23 @@ class Scraper():
 
 
 
-    def sqlliteDriverData(self, filename, date, dictNames, extra, decklists, players, matchlog):
-
+    def sqlliteDriverData(self, filename, dateTime, dictNames, extra, decklists, players, matchlog):
+        gameFormat = 'NA'
+        gameType = 'Constructed'
+        print(players)
+        print(extra)
+        print(filename)
         #inserts match into database
-        self.cursor.execute(f"""INSERT INTO matches(filename, players, decknames, 
+        print(f"INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES('{filename}', '{players}', '{dictNames}', '{decklists[0]}', '{decklists[1]}', '{extra['play']}', '{extra['winner']}', NA, Constructed, '{dateTime}');")
+        #self.cursor.execute(f"INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES('{filename}', '{players}', '{dictNames}', '{decklists[0]}', '{decklists[1]}', '{extra['play']}', '{extra['winner']}', NA, Constructed, '{dateTime}');")
+
+        self.cursor.execute(f'''INSERT INTO matches(filename, players, decknames, 
                                                     decklistP1, decklistP2, firstTurns, 
                                                     winLoss, format, type, date) 
                                                     
                                                     VALUES('{filename}', '{players}', '{dictNames}', 
                                                     '{decklists[0]}', '{decklists[1]}', '{extra['play']}', 
-                                                    '{extra['winner']}', NA, Constructed, '{date}');""")
+                                                    '{extra['winner']}', '{gameFormat}', '{gameType}', '{dateTime}');''')
         self.userConnection.commit()
 
         matchID = self.cursor.execute("SELECT MAX(matchID) FROM matches;")
@@ -154,4 +163,4 @@ class Scraper():
 
 
 if __name__ == '__main__':
-    Scraper('C:\Users\harri\AppData\Local\Apps\2.0\Data\JWMNX0QY.YK3\AGMD182G.AAW\mtgo..tion_92a8f782d852ef89_0003.0004_4d4c5524cb8c51a2\Data\AppFiles\E8BC386C00E942D40363482907EEDEEA')
+    Scraper(r'C:\Users\harri\AppData\Local\Apps\2.0\Data\JWMNX0QY.YK3\AGMD182G.AAW\mtgo..tion_92a8f782d852ef89_0003.0004_4d4c5524cb8c51a2\Data\AppFiles\E8BC386C00E942D40363482907EEDEEA')
