@@ -18,6 +18,10 @@ class MatchRecord:
         #tries to create self.players
         try:
             self.getPlayers()
+
+            if self.players == []:
+                return None, None, None, None
+
             #if there is a problem reading the player names or the match is not 1v1 (fie invalid)
         except (IndexError, ValueError):
             return None, None, None, None
