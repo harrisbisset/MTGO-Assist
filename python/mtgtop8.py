@@ -27,7 +27,7 @@ class DriverController():
 
 
 
-    def returnDictNames(self, format, deckLists, date):
+    def returnDictNames(self, deckLists, date):
         #calls the 'getSite()' method to open the url through the driver
         self.getSite()
 
@@ -35,7 +35,7 @@ class DriverController():
         self.clearCookieBanner()
 
         #calls the 'inputFormData()' method to get all decks to be scraped
-        self.inputFormData(format, self.refactorDecklist(deckLists), date)
+        self.inputFormData(self.refactorDecklist(deckLists), date)
 
         #gets the deck urls and names from the 'getDeckUrls()' method
         deckNames = self.getDeckNames()
@@ -122,22 +122,19 @@ class DriverController():
 
 
     def refactorDecklist(self, deckLists):
-        cards = {}
+        cards = [dict(), dict()]
         
-        for game in deckLists:
-            for card in game:
+        for u, game in enumerate(deckLists):
+            for i, player in enumerate(game):
+                for card in game[player]:
 
-                #if the card isn't in the dictionary, then it's added with a value of 0
-                #if it already exists, then it's vlaue is increased by 1
-                #this value represents the number of the same card
-                try:
-                    cards[card] = cards[card]+1
-                except:
-                    cards[card] = 1
-        
-        #deckLists is no longer required
-        del deckLists
-
+                    val = deckLists[u][player][card]
+                    try:
+                        if val > cards[i][card]:
+                            cards[i].update({f'{card}':val})
+                    except:
+                        cards[i].update({f'{card}':val})
+            
         return cards
         
 
@@ -155,4 +152,4 @@ class DriverController():
         for deckName in dictNames:
             dictNames[deckName] = dictNames[deckName] / len(deckNames)
 
-        return dictNames
+        return 
