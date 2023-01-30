@@ -5,13 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="mainStyles.css">
 
+    <style>
+        table,td,th{border:1px solid black;}
+        table{border-collapse: collapse;}
+        #onmouseover{font-size: 30;}
+        #onmouseout{font-size: 10;}
+        #onclick{color: black;}
+    </style>
+
   </head>
   <body>
     <section id="top">
         <section id="topbar">
         <div class="elems">
             <ul class="listBar">
-            <li class="listBarItem">Hello</li>
+                <li class="listBarItem">Hello</li>
             </ul>
         </div>
         </section>
@@ -19,7 +27,9 @@
         <section id="navbar">
         <div class="elems">
             <ul class="listBar">
-            <li class="listBarItem">Hello</li>
+                <li class="listBarItem"><button id="pyBtnSync">Sync</button></li>
+                <li class="listBarItem"><button id="pyBtnExport">Export</button></li>
+                <li class="listBarItem"><button id="pyBtnProfile"><img src="profile.png" id="profileImage"></button></li>
             </ul>
         </div>
         </section>
@@ -30,17 +40,21 @@
     </section>
 
     <section id="mid">
-        <button id="pyBtnSync">Sync</button><br>
         
         <section id="databaseSection">
                 <table>
                     <tr id="colNames">
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
+                        <th>Match ID</th>
+                        <th>Filename</th>
+                        <th>Players</th>
+                        <th>Decknames</th>
+                        <th>Player 1 Decklist</th>
+                        <th>Player 2 Decklist</th>
+                        <th>Turn Order</th>
+                        <th>Win List</th>
+                        <th>Format</th>
+                        <th>Type</th>
+                        <th>Date</th>
                     </tr>
                     <div id="databaseContent">
                         
@@ -50,10 +64,8 @@
     </section>
 
     <section id="bottom">
-        <section id="lowerLoad">
-            <div id="loadMore">
-                <button id="pyBtnMore">Load More</button>
-            </div>
+        <div id="nextPage">
+                <button id="pyBtnNextPage">Next Page</button>
         </section>
     </section>
 
