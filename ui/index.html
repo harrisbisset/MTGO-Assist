@@ -3,7 +3,7 @@
 
     <title>MTGO Assist</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css.css">
+    <link rel="stylesheet" href="mainStyles.css">
 
     <style>
         table,td,th{border:1px solid black;}
@@ -17,21 +17,17 @@
   <body>
     <section id="top">
         <section id="topbar">
-        <div class="elems">
             <ul class="listBar">
                 <li class="listBarItem">Hello</li>
             </ul>
-        </div>
         </section>
 
         <section id="navbar">
-        <div class="elems">
             <ul class="listBar">
-                <li class="listBarItem"><button id="pyBtnSync">Sync</button></li>
-                <li class="listBarItem"><button id="pyBtnExport">Export</button></li>
-                <li class="listBarItem"><button id="pyBtnProfile"><img src="./profile.png" id="profileImage"></button></li>
+                <li class="listBarItemNav" id="profileListItem"><button id="pyBtnProfile"><img src="./profile.png" id="profileImage"></button></li>
+                <li class="listBarItemNav"><button id="pyBtnExport">Export</button></li>
+                <li class="listBarItemNav"><button id="pyBtnSync">Sync</button></li>
             </ul>
-        </div>
         </section>
 
         <section id="lowHeader">
@@ -44,17 +40,17 @@
         <section id="databaseSection">
                 <table>
                     <tr id="colNames">
-                        <th>Match ID</th>
-                        <th>Filename</th>
-                        <th>Players</th>
-                        <th>Decknames</th>
-                        <th>Player 1 Decklist</th>
-                        <th>Player 2 Decklist</th>
-                        <th>Turn Order</th>
-                        <th>Win List</th>
-                        <th>Format</th>
-                        <th>Type</th>
-                        <th>Date</th>
+                        <th class="tableHeader">Match ID</th>
+                        <th class="tableHeader">Filename</th>
+                        <th class="tableHeader">Players</th>
+                        <th class="tableHeader">Decknames</th>
+                        <th class="tableHeader">Player 1 Decklist</th>
+                        <th class="tableHeader">Player 2 Decklist</th>
+                        <th class="tableHeader">Turn Order</th>
+                        <th class="tableHeader">Win List</th>
+                        <th class="tableHeader">Format</th>
+                        <th class="tableHeader">Type</th>
+                        <th class="tableHeader">Date</th>
                     </tr>
                     <div id="databaseContent">
                         
