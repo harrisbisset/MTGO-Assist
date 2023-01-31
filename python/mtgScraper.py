@@ -7,51 +7,58 @@ import sqlite3
 
 
 class Scraper():
-    def __init__(self, path):
-        fileList = [f for f in os.listdir(path) if f.endswith('.dat')]
+    def __init__(self):
+        self.paths = []
 
-        #opens connection
-        self.openConn()
-
-        #checks if database exists
-        self.checkDB()
+    def addPath(self, path):
+        self.paths.append(path)
         
-        top8Conn = self.checkInternet()
-        
-        #initilises modules
-        match = MatchRecord()
-        dc = DriverController()
-        
-        #loops through file list
-        for filename in fileList:
+    def run(self):
+        for path in self.paths:
+            fileList = [f for f in os.listdir(path) if f.endswith('.dat')]
 
-            #gets decklists from MatchRecord
-            #other stored data is implemented into database in MatchRecord
-            decklists, extra, matchlog, players = match.getDecklists(f'{path}/{filename}')
+            #opens connection
+            self.openConn()
 
-            #if the file is valid
-            if decklists is not None:
-                
-                #gets and reformats date
-                dateTime = str(datetime.fromtimestamp(os.path.getmtime(path + '\\' + filename)))
-                x, y, z = dateTime.split(' ')[0].split('-')
-                date = z + '/' + y + '/' + x
+            #checks if database exists
+            self.checkDB()
+            
+            top8Conn = self.checkInternet()
+            
+            #initilises modules
+            match = MatchRecord()
+            dc = DriverController()
+            
+            #loops through file list
+            for filename in fileList:
 
-                if top8Conn == True:
-                    #gets the possible deck names from DriverController
-                    dictNames = dc.returnDictNames(decklists, date)
-                else:
-                    dictNames = "NA"
+                #gets decklists from MatchRecord
+                #other stored data is implemented into database in MatchRecord
+                decklists, extra, matchlog, players = match.getDecklists(f'{path}/{filename}')
+
+                #if the file is valid
+                if decklists is not None:
                     
-                #sends info to sqliite db
-                self.sqlliteDriverData(filename, date, dictNames, extra, decklists, players, matchlog)
+                    #gets and reformats date
+                    dateTime = str(datetime.fromtimestamp(os.path.getmtime(path + '\\' + filename)))
+                    x, y, z = dateTime.split(' ')[0].split('-')
+                    date = z + '/' + y + '/' + x
 
-        #closes webdriver
-        dc.quit()
+                    if top8Conn == True:
+                        #gets the possible deck names from DriverController
+                        dictNames = dc.returnDictNames(decklists, date)
+                    else:
+                        dictNames = "NA"
+                        
+                    #sends info to sqliite db
+                    self.sqlliteDriverData(filename, date, dictNames, extra, decklists, players, matchlog)
+
+            #closes webdriver
+            dc.quit()
+            
+            #close connection
+            self.closeConn()
         
-        #close connection
-        self.closeConn()
-    
 
 
 
