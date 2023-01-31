@@ -53,10 +53,6 @@ document.querySelector('#pyBtnSync').addEventListener('click', () => {
 })
 
 document.querySelector('#pyBtnNextPage').addEventListener('click', () => {
-  //runs dbCMD that grabs user preference data from db
-  //runPython(autoLogin = T/F, userName = '', password = '', )
-
-  //runs main program
   loadNextPage();
 })
 
