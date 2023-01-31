@@ -6,23 +6,36 @@ h1 {
 
 /* IDs */
 
+#topbar, #navbar {
+    height: 60px;
+}
+
 #topbar {
     width:30%;
     float:left;
+    background-color: rgb(134, 134, 134);
 }
 
 #navbar {
     width:70%;
     float:right;
+    background-color: rgb(134, 134, 134);
 }
 
 
 #profileImage {
-    max-width:100%;
+    width: 40px;
     height: auto;
 }
 
+#profileListItem {
+    padding-top:7px;
+    padding-left: 30px;
+}
 
+#colNames {
+    width:100%;
+}
 
 
 #lowHeader {
@@ -51,29 +64,45 @@ h1 {
 
 /* classes */
 
+.elems {
+    width: 100%;
+}
+
 .listBar {
-  list-style-type: none;
-  margin: 0;
-  padding: 5;
-  overflow: hidden;
-  background-color: rgb(134, 134, 134);
+    list-style-type: none;
+    padding: 0px;
+    margin: auto;
+    height:100%;
+}
+
+.listBarItem, .listBarItemNav {
+    text-align: center;
+    vertical-align: middle;
+    padding:20px 30px;
 }
 
 .listBarItem {
-  float: left;
-  width: 60px;
-  height: 28px;
+    float: left;
+}
+
+.listBarItemNav {
+    float: right;
 }
 
 .listBarItem a {
-  display: block;
-  color: rgb(0, 0, 0);
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
+    display: block;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
 }
 
 /* Change the link color to #111 (black) on hover */
 .listBarItem a:hover {
-  background-color: rgb(125, 214, 169);
+    background-color: rgb(125, 214, 169);
+}
+
+.tableHeader {
+    padding-left:30px;
+    padding-right:30px;
 }
