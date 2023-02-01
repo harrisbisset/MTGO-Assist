@@ -14,24 +14,32 @@ class Scraper():
         self.paths.append(path)
         
     def run(self):
+
+        #opens connection
+        self.openConn()
+
+        #checks if database exists
+        self.checkDB()
+
+        top8Conn = self.checkInternet()
+            
+        #initilises modules
+        match = MatchRecord()
+        dc = DriverController()
+        
         for path in self.paths:
             fileList = [f for f in os.listdir(path) if f.endswith('.dat')]
 
-            #opens connection
-            self.openConn()
+            self.cursor.execute("SELECT filename FROM matches;")
+            filenames = self.cursor.fetchall()
 
-            #checks if database exists
-            self.checkDB()
-            
-            top8Conn = self.checkInternet()
-            
-            #initilises modules
-            match = MatchRecord()
-            dc = DriverController()
-            
             #loops through file list
             for filename in fileList:
 
+                #if file already scraped
+                if filename in filenames:
+                    break
+                
                 #gets decklists from MatchRecord
                 #other stored data is implemented into database in MatchRecord
                 decklists, extra, matchlog, players = match.getDecklists(f'{path}/{filename}')
@@ -53,11 +61,11 @@ class Scraper():
                     #sends info to sqliite db
                     self.sqlliteDriverData(filename, date, dictNames, extra, decklists, players, matchlog)
 
-            #closes webdriver
-            dc.quit()
+        #closes webdriver
+        dc.quit()
             
-            #close connection
-            self.closeConn()
+        #close connection
+        self.closeConn()
         
 
 
@@ -65,7 +73,7 @@ class Scraper():
     def openConn(self):
         self.userConnection = sqlite3.connect("./database/mtgoAssist.db")
         self.cursor = self.userConnection.cursor()
-        self.userConnection.execute("PRAGMA foreign_keys = 1")
+        # self.userConnection.execute("PRAGMA foreign_keys = 1")
 
 
 
@@ -87,30 +95,20 @@ class Scraper():
 
     def checkDB(self):
         try:
-            self.cursor.execute("SELECT MAX(matchID) FROM matches;")
+            return self.cursor.execute("SELECT MAX(matchID) FROM matches;")
         except:
-            
-            #creates formats table
-            self.cursor.execute("CREATE TABLE formats(format TEXT NOT NULL PRIMARY KEY);")
-            self.userConnection.commit()
-
-            #inserts formats into the formats table
-            formats = ['Standard', 'Pioneer', 'Modern', 'Legacy', 'Vintage', 'NA']
-            for elem in formats:
-                self.cursor.execute(f"INSERT INTO formats(format) VALUES('{elem}');")
-            self.userConnection.commit()
 
             #creates the matches table
             self.cursor.execute("""CREATE TABLE matches(
-                                matchID INTEGER NOT NULL PRIMARY KEY, 
-                                filename TEXT NOT NULL, 
-                                players BLOB NOT NULL, 
-                                decknames BLOB, 
-                                decklistP1 BLOB NOT NULL, 
-                                decklistP2 BLOB NOT NULL, 
-                                firstTurns BLOB NOT NULL, 
-                                winLoss BLOB, 
-                                format REFERENCES formats(format), 
+                                matchID INTEGER PRIMARY KEY, 
+                                filename TEXT, 
+                                players TEXT NOT NULL, 
+                                decknames TEXT, 
+                                decklistP1 TEXT NOT NULL, 
+                                decklistP2 TEXT NOT NULL, 
+                                firstTurns TEXT NOT NULL, 
+                                winLoss TEXT NOT NULL, 
+                                format TEXT, 
                                 type TEXT, 
                                 date TEXT NOT NULL);""")
             self.userConnection.commit()
@@ -118,56 +116,36 @@ class Scraper():
             #creates games table
             self.cursor.execute("""CREATE TABLE games(
                                 gamesID INTEGER NOT NULL PRIMARY KEY, 
-                                matchID REFERENCES matches(matchID) NOT NULL, 
                                 gameNum INTEGER NOT NULL,
-                                startingHands BLOB NOT NULL,
+                                startingHands TEXT NOT NULL,
                                 gameLog TEXT NOT NULL, 
-                                winner TEXT);""")
+                                winner TEXT, 
+                                matchID INTEGER REFERENCES matches(matchID) ON UPDATE CASCADE);""")
             self.userConnection.commit()
-
+        return 
         
 
 
 
     def sqlliteDriverData(self, filename, dateTime, dictNames, extra, decklists, players, matchlog):
-        gameFormat = 'NA'
-        gameType = 'Constructed'
-        print(players)
-        print(extra)
-        print(filename)
         #inserts match into database
-        print(f"INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES('{filename}', '{players}', '{dictNames}', '{decklists[0]}', '{decklists[1]}', '{extra['play']}', '{extra['winner']}', NA, Constructed, '{dateTime}');")
-        #self.cursor.execute(f"INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES('{filename}', '{players}', '{dictNames}', '{decklists[0]}', '{decklists[1]}', '{extra['play']}', '{extra['winner']}', NA, Constructed, '{dateTime}');")
 
-        self.cursor.execute(f'''INSERT INTO matches(filename, players, decknames, 
-                                                    decklistP1, decklistP2, firstTurns, 
-                                                    winLoss, format, type, date) 
-                                                    
-                                                    VALUES('{filename}', '{players}', '{dictNames}', 
-                                                    '{decklists[0]}', '{decklists[1]}', '{extra['play']}', 
-                                                    '{extra['winner']}', '{gameFormat}', '{gameType}', '{dateTime}');''')
+        data = (filename, str(players), str(dictNames), str(decklists[0]), str(decklists[1]), str(extra['play']), str(extra['winner']), 'NA', 'Constructed', dateTime)
+
+        self.cursor.execute("INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", data)
         self.userConnection.commit()
-
-        matchID = self.cursor.execute("SELECT MAX(matchID) FROM matches;")
+        self.cursor.execute("SELECT MAX(matchID) FROM matches;")
+        matchID = self.cursor.fetchone()
 
         #inserts games into database
-        for game in matchlog:
-            self.cursor.execute(f"""INSERT INTO games(matchID, gameNum, startinghands, gameLog, winner) 
+        for gameNo, game in enumerate(matchlog):
+            data = (int(matchID[0]), str(matchlog.index(game)), str(extra['startingHands']), str(matchlog[gameNo]), str(extra['winner'][matchlog.index(game)]))
+            self.cursor.execute("INSERT INTO games(matchID, gameNum, startinghands, gameLog, winner)  VALUES(?,?,?,?,?);", data)
                                                 
-                                                        VALUES('{matchID}', '{matchlog.index(game)}', '{extra['startingHands']}','{matchlog[game]}', 
-                                                        '{extra['winner'][matchlog.index(game)]}');""")
-
-    
+                                                        
 
 
     def closeConn(self):
         self.userConnection.commit()
         self.cursor.close()
         self.userConnection.close()
-
-
-
-
-
-if __name__ == '__main__':
-    Scraper(r'C:\Users\harri\AppData\Local\Apps\2.0\Data\JWMNX0QY.YK3\AGMD182G.AAW\mtgo..tion_92a8f782d852ef89_0003.0004_4d4c5524cb8c51a2\Data\AppFiles\E8BC386C00E942D40363482907EEDEEA')
