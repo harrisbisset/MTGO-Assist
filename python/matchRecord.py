@@ -108,7 +108,7 @@ class MatchRecord:
         #card names are formatted as @[Card Name@:numbers,numbers:@]
         playCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
         revealedCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
-
+        
         for turn in game:
             #finds matched patterns
             playCardMatches = playCardPattern.findall(' '.join(turn))
@@ -118,8 +118,9 @@ class MatchRecord:
             for actions in playCardMatches:
 
                 #if a card has been revealed, and has interacted with the game, remove it from revealedMatches
-                if actions[3] in revealedMatches:
-                    revealedMatches.pop(revealedMatches.index(actions[3]))
+                for match in revealedMatches:
+                    if actions[3] in match:
+                        revealedMatches.remove(match)
 
                 #adds card to decklists
                 if actions[3] in decklists[actions[0]]:
@@ -135,7 +136,6 @@ class MatchRecord:
                     decklists[revealed[0]][revealed[3]] += 1
                 else:
                     decklists[revealed[0]].update({revealed[3]:1})
-
 
         return decklists
 
