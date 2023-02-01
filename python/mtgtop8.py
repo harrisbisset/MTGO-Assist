@@ -151,4 +151,4 @@ class DriverController():
         for deckName in dictNames:
             dictNames[deckName] = dictNames[deckName] / len(deckNames)
 
-        return 
+        return dictNames
