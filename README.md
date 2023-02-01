@@ -5,7 +5,7 @@ v1.0.0
 [MIT License](LICENSE)
 
 
-68.5h spent programming
+72h spent programming
 
         #format is currently not discerable from the logs, so this should always be true
         if format is not None:
