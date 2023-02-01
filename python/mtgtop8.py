@@ -65,8 +65,9 @@ class DriverController():
         #loops through the list of cards, writing each card into the <textarea>
         textarea = self.driver.find_element(By.XPATH, '//textarea[@name="cards"]')
 
-       #writes the cards to the textbox
-        for card in deckList:
+        print(deckList)
+        #writes the cards to the textbox
+        for card in deckList[0]:
             textarea.send_keys(card + Keys.RETURN)
 
         #remormat date in matchRecord
@@ -125,10 +126,13 @@ class DriverController():
         cards = [dict(), dict()]
         
         for u, game in enumerate(deckLists):
+            print(game)
             for i, player in enumerate(game):
+                print(player)
                 for card in game[player]:
-
+                    print(card)
                     val = deckLists[u][player][card]
+                    print(val)
                     try:
                         if val > cards[i][card]:
                             cards[i].update({f'{card}':val})
