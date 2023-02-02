@@ -1,0 +1,16 @@
+table,td,th{
+    border:1px solid black;}
+
+
+table{
+    border-collapse: collapse;}
+
+
+#databaseSection {
+    color:black;}
+
+
+.tableHeader {
+    padding-left:1.3vw;
+    padding-right:1.3vw;
+    white-space: nowrap;}

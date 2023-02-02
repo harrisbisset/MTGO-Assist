@@ -1,0 +1,74 @@
+#topbar, #navbar {
+    height: 60px;}
+
+
+#topbar {
+    width:30%;
+    float:left;
+    background-color: rgb(134, 134, 134);}
+
+
+.listBar {
+    list-style-type: none;
+    padding: 0px;
+    margin: auto;
+    height:100%;}
+
+
+.listBarItem, .listBarItemNav {
+    text-align: center;
+    vertical-align: middle;
+    padding:20px 30px;}
+
+
+.listBarItem {
+    float: left;
+    font-size:1.4vw}
+
+
+.listBarItem a {
+    display: block;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;}
+
+
+.listBarItemNav {
+    float: right;}
+    
+
+#navbar {
+    width:70%;
+    float:right;
+    background-color: rgb(134, 134, 134);}
+
+    
+#pyBtnSync {
+    color:black;}
+    
+
+#profileImage {
+    width: 40px;
+    height: auto;}
+
+
+#profileListItem {
+    padding-top:7px;
+    padding-left: 30px;}
+
+
+#colNames {
+    width:100%;}
+
+
+#lowHeader {
+    color:black;}
+
+
+
+@media only screen and (max-width:1250px){
+    .listBarItem {
+        float: left;
+        font-size:20px;}
+}
