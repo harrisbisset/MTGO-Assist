@@ -1,21 +1,11 @@
-/* headings */
-
-h1 {
-    color:black;
-}
-
-
-
-
 #nextPage {
     display: inline-block;
     position: absolute;
     bottom: 10px;
     width: 99%;
-    text-align: center;
-}
+    text-align: center;}
 
+    
 #pyBtnNextPage {
-    color:black;
-}
+    color:black;}
 

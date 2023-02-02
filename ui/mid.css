@@ -13,4 +13,33 @@ table{
 .tableHeader {
     padding-left:1.3vw;
     padding-right:1.3vw;
+    white-space: nowrap;
+    max-width:200px;}
+
+
+.tableRow{
+    max-width:200px;
+    word-wrap:break-word;}
+
+
+th td:last-child {
+    width: 1%;
     white-space: nowrap;}
+
+@media only screen and (max-width:700px){
+    
+    .tableHeader, .tableRow{
+        font-size:10px;}
+
+    
+    .tableHeader {
+        padding-left:1.3vw;
+        padding-right:1.3vw;
+        white-space: nowrap;
+        max-width:200px;}
+    
+
+    .tableRow {
+        float: left;
+        white-space: nowrap;
+        max-width:200px;}}

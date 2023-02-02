@@ -1,11 +1,17 @@
+/* #top, body{width:1000%} */
+
+#bar{
+    height: 60px;
+    width:auto;
+    background-color: rgb(134, 134, 134);}
+
 #topbar, #navbar {
     height: 60px;}
 
 
 #topbar {
     width:30%;
-    float:left;
-    background-color: rgb(134, 134, 134);}
+    float:left;}
 
 
 .listBar {
@@ -70,5 +76,5 @@
 @media only screen and (max-width:1250px){
     .listBarItem {
         float: left;
-        font-size:20px;}
+        font-size:16px;}
 }
