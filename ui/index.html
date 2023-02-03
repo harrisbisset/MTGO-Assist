@@ -3,10 +3,10 @@
 
     <title>MTGO Assist</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="bottom.css">
-    <link rel="stylesheet" href="top.css">
-    <link rel="stylesheet" href="mid.css">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="./css/bottom.css">
+    <link rel="stylesheet" href="./css/top.css">
+    <link rel="stylesheet" href="./css/mid.css">
+    <link rel="stylesheet" href="./css/main.css">
 
   </head>
   <body>
@@ -37,28 +37,28 @@
         <section id="databaseSection">
                 <table>
                     <tr id="colNames">
-                        <th class="tableHeader"><label>ID</label></th>
-                        <th class="tableHeader"><label>File</label></th>
+                        <th class="tableHeader"><label id="matchID"><label id="matchText">Match </label>ID</label></th>
+                        <th class="tableHeader"><label>File<label id="fileText">name</label></label></th>
                         <th class="tableHeader"><label>Opponent</label></th>
                         <th class="tableHeader"><label>Deck<label class="extraHeaderText">name</label>s</label></th>
                         <th class="tableHeader"><label class="altHeaderText">P1</label><label class="extraHeaderText">Player 1 Decklist</label></th>
                         <th class="tableHeader"><label class="altHeaderText">P2</label><label class="extraHeaderText">Player 2 Decklist</label></th>
-                        <th class="tableHeader"><label class="extraHeaderText">Turn </label><label>Order</label></th>
-                        <th class="tableHeader"><label class="altHeaderText">Wins</label><label class="extraHeaderText">Win List</label></th>
-                        <th class="tableHeader">Format</th>
-                        <th class="tableHeader">Type</th>
-                        <th class="tableHeader">Date</th>
+                        <th class="tableHeader"><label class="extraHeaderTextExtra">Turn </label><label>Order</label></th>
+                        <th class="tableHeader"><label id="altHeaderTextExtra">Wins</label><label class="extraHeaderTextExtra">Win List</label></th>
+                        <th class="tableHeader"><label>Format</label></th>
+                        <th class="tableHeader"><label id="type">Type</label></th>
+                        <th class="tableHeader"><label>Date</label></th>
                     </tr>
                     <div id="databaseContent">
-                        <tr>
+                        <tr class="winRecord">
                             <th class="matchID">1</th>
                             <th class="filename"><button class="replaceImageFilename">...</button></th>
-                            <th class="players"><p class="replaceText">Not_The_Best_Player</p><button class="replaceImage">...</button></th>
-                            <th class="decknames"><p class="replaceText">Skred Faeries: 0.7<br>Land Destruction:0.3<br><br>Mono U Faeries:1.0</p><button class="replaceImage">...</button></th>
-                            <th class="p1Deck"><p class="replaceText">We are lucky to live in a glorious age that gives us everything we could ask for as a human race. What more could you need when you have meat covered in cheese nestled between bread as a complete meal.</p><button class="replaceImage">...</button></th>
-                            <th class="p2Deck"><p class="replaceText">From smashed patties at Shake Shack to Glamburgers at Honky Tonk, there’s a little something for everyone. Some burgers are humble, and some are ostentatious, and you just have to try them all to figure out what you want.</p><button class="replaceImage">...</button></th>
-                            <th class="turnOrder"><p class="replaceText">Not_The_Best_Player<br>-Sire<br>Not_The_Best_Player</p><button class="replaceImage">...</button></th>
-                            <th class="winList"><p class="replaceText">Not_The_Best_Player<br>-Sire<br>Not_The_Best_Player</p><button class="replaceImage">...</button></th>
+                            <th class="players"><p class="replaceTextOpponent">Not_The_Best_Player</p><button class="replaceImageOpponent">...</button></th>
+                            <th class="decknames"><p class="replaceText">Skred Faeries: 70%<br>Land Destruction:30%<br><br>Mono U Faeries:100%</p><button class="replaceImage">...</button></th>
+                            <th class="p1Deck"><p class="replaceTextDeck">We are lucky to live in a glorious age that gives us everything we could ask for as a human race. What more could you need when you have meat covered in cheese nestled between bread as a complete meal.</p><button class="replaceImageDeck">...</button></th>
+                            <th class="p2Deck"><p class="replaceTextDeck">From smashed patties at Shake Shack to Glamburgers at Honky Tonk, there’s a little something for everyone. Some burgers are humble, and some are ostentatious, and you just have to try them all to figure out what you want.</p><button class="replaceImageDeck">...</button></th>
+                            <th class="turnOrder"><p class="replaceTextExtra">Not_The_Best_Player<br>-Sire<br>Not_The_Best_Player</p><button class="replaceImageExtra">...</button></th>
+                            <th class="winList"><p class="replaceTextExtra">Not_The_Best_Player<br>-Sire<br>Not_The_Best_Player</p><button class="replaceImageExtra">...</button></th>
                             <th class="format">Pauper</th>
                             <th class="type">Contructed</th>
                             <th class="date">20/06/2023</th>
