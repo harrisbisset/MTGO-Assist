@@ -27,7 +27,7 @@ table{
     white-space:nowrap;}
 
 
-.replaceImage, .altHeaderText, #altHeaderTextExtra, .replaceImageOpponent, .replaceImageDeck{
+.replaceImage, .altHeaderText, #altHeaderTextExtra, .replaceImageOpponent, .replaceImageDeck, .replaceImageExtra{
     display: none;}
 
 
