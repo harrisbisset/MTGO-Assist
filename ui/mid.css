@@ -17,19 +17,40 @@ table{
     max-width:200px;}
 
 
-.tableRow{
+.matchID, .filename, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
     max-width:200px;
     word-wrap:break-word;}
 
 
-th td:last-child {
-    width: 1%;
-    white-space: nowrap;}
+.matchID{
+    font-size: 18px;}
+
+
+.extraHeaderText{
+    display:inline-block;}
+
+
+.filename{
+    max-width:100%;
+    white-space:nowrap;}
+
+
+.replaceText{
+    display: block;}
+
+
+.replaceImage{
+    display: none;}
+
+
+.altHeaderText{
+    display: none;}
+
 
 @media only screen and (max-width:700px){
     
-    .tableHeader, .tableRow{
-        font-size:10px;}
+    .tableHeader, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
+        font-size:12px;}
 
     
     .tableHeader {
@@ -39,7 +60,21 @@ th td:last-child {
         max-width:200px;}
     
 
-    .tableRow {
-        float: left;
-        white-space: nowrap;
-        max-width:200px;}}
+    .matchID, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date {
+        word-wrap:break-word;}
+    
+        
+    .extraHeaderText{
+        display:none;}
+
+
+    .replaceText{
+        display:none;}
+
+
+    .replaceImage{
+        display:block;}
+    
+    
+    .altHeaderText{
+        display: block;}}
