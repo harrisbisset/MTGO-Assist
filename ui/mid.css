@@ -22,34 +22,78 @@ table{
     word-wrap:break-word;}
 
 
-.matchID{
-    font-size: 18px;}
-
-
-.extraHeaderText{
-    display:inline-block;}
-
-
 .filename{
     max-width:100%;
     white-space:nowrap;}
 
 
-.replaceText{
-    display: block;}
-
-
-.replaceImage{
+.replaceImage, .altHeaderText, #altHeaderTextExtra, .replaceImageOpponent, .replaceImageDeck{
     display: none;}
 
 
-.altHeaderText{
-    display: none;}
+.decknames{
+    white-space: nowrap;}
 
 
-@media only screen and (max-width:700px){
+#matchText, #fileText, .extraHeaderText, .replaceText, .replaceTextDeck{
+    display:inline-block;}
+
+
+.winRecord{
+    background-color: #59cf78;}
+
+
+@media only screen and (max-width:1600px){
+    #matchtext, #fileText{
+        display:none;}}
+
+
+@media only screen and (max-width:1480px){
+    .extraHeaderTextExtra, .replaceTextExtra{
+        display:none;}
     
-    .tableHeader, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
+    
+    #altHeaderTextExtra, .replaceImageExtra{
+        display:inline-block;}}
+
+
+@media only screen and (max-width:560px){
+    #matchID, .matchID, tr th:nth-child(1){
+        display:none;}}
+
+
+@media only screen and (max-width:1280px){
+    .replaceTextOpponent{
+        display:none;}
+    
+    .replaceImageOpponent{
+        display:inline-block;}}
+
+
+@media only screen and (max-width:1240px){
+    .replaceTextDeck{
+        display:none;}
+    
+    .replaceImageDeck{
+        display:inline-block;}}
+
+
+@media only screen and (max-width:1090px){
+    .tableHeader, .matchID, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
+        font-size:14px;}}
+
+
+@media only screen and (max-width:960px){
+    .tableHeader, .matchID, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
+        font-size:12px;}}
+
+
+@media only screen and (max-width:830px){
+    #type, .type, tr th:nth-child(10){
+        display:none;}}
+
+@media only screen and (max-width:750px){
+    .tableHeader, .matchID, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
         font-size:12px;}
 
     
@@ -64,17 +108,10 @@ table{
         word-wrap:break-word;}
     
         
-    .extraHeaderText{
+    .extraHeaderText, .replaceText{
         display:none;}
 
-
-    .replaceText{
-        display:none;}
-
-
-    .replaceImage{
-        display:block;}
     
-    
-    .altHeaderText{
-        display: block;}}
+    .altHeaderText, .replaceImage{
+        display: inline-block;}}
+
