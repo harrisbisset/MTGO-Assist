@@ -2,7 +2,6 @@ import sqlite3
 import sys
 import json
 
-
 #gets data from database to be displayed on table
 def openData():
     userConnection = sqlite3.connect("./database/mtgoAssist.db")
@@ -12,12 +11,10 @@ def openData():
 
     cursor.close()
     userConnection.close()
-    
-    jsonVals = {
-        "ID":0
-    }
-    
-    json.dumps(matches)
+
+    for i in matches:
+        print(json.dumps(i))
+
 
 
 #gets user averages
@@ -29,7 +26,7 @@ def getUserData():
     cursor.close()
     userConnection.close()
 
-
+openData()
 
 if __name__ == "main":
     pass
