@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import json
 
 
 #gets data from database to be displayed on table
@@ -11,11 +12,12 @@ def openData():
 
     cursor.close()
     userConnection.close()
-
-    for row in matches:
-        for i, elem in enumerate(row):
-            if i
-            print(elem)
+    
+    jsonVals = {
+        "ID":0
+    }
+    
+    json.dumps(matches)
 
 
 #gets user averages
