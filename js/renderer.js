@@ -31,48 +31,34 @@ function loadFirstPage(){
   var pjson = require('./package.json');
 
   let cmdDataLoad = {
-    //mode: 'json'
-    mode: 'text',
+    mode: 'json',
     pythonOptions: ['-u'],
     args: ["loaded", pjson.version]
   }
 
   pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
-    
-    let matchID = [];
-    let filename = [];
-    let players = [];
-    let decknames = [];
-    let p1Deck = [];
-    let p2Deck = [];
-    let turnOrder = [];
-    let winList = [];
-    let format = [];
-    let type = [];
-    let date = [];
-    
-    for (let inner = 1; inner < results.length; inner++){
-      
-    }
-    
-    for (let outer = 0; outer < results.length/11; outer++){
-      document.getElementById(databaseContent).innerHTML = `
-          <tr>
-            <th class="matchID">${matchID}</th>
-            <th class="filename">${filename}<button class="replaceImageFilename">...</button></th>
-            <th class="players"><p class="replaceTextOpponent">${players}</p><button class="replaceImageOpponent">...</button></th>
-            <th class="decknames"><p class="replaceText">${decknames}</p><button class="replaceImage">...</button></th>
-            <th class="p1Deck"><p class="replaceTextDeck">${p1Deck}</p><button class="replaceImageDeck">...</button></th>
-            <th class="p2Deck"><p class="replaceTextDeck">${p2Deck}</p><button class="replaceImageDeck">...</button></th>
-            <th class="turnOrder"><p class="replaceTextExtra">${turnOrder}<button class="replaceImageExtra">...</button></th>
-            <th class="winList"><p class="replaceTextExtra">${winList}</p><button class="replaceImageExtra">...</button></th>
-            <th class="format">${format}</th>
-            <th class="type">${type}</th>
-            <th class="date">${date}</th>
-          </tr>`
+    console.log(results)
+    let leng = results.length
+
+    for (let i = 0; i < results.length; i++){
+      let append = `<tr>
+              <th class="matchID" id="row${leng-i-1}">${results[leng-i-1][0]}</th>
+              <th class="filename"><p class="hidden">${results[leng-i-1][1]}</p><button class="replaceImageFilename">...</button></th>
+              <th class="players"><p class="replaceTextOpponent">${results[leng-i-1][2]}</p><button class="replaceImageOpponent">...</button></th>
+              <th class="decknames"><p class="replaceText">${results[leng-i-1][3]}</p><button class="replaceImage">...</button></th>
+              <th class="p1Deck"><p class="replaceTextDeck">${results[leng-i-1][4]}</p><button class="replaceImageDeck">...</button></th>
+              <th class="p2Deck"><p class="replaceTextDeck">${results[leng-i-1][5]}</p><button class="replaceImageDeck">...</button></th>
+              <th class="turnOrder"><p class="replaceTextExtra">${results[leng-i-1][6]}</p><button class="replaceImageExtra">...</button></th>
+              <th class="winList"><p class="replaceTextExtra">${results[leng-i-1][7]}</p><button class="replaceImageExtra">...</button></th>
+              <th class="format">${results[leng-i-1][8]}</th>
+              <th class="type">${results[leng-i-1][9]}</th>
+              <th class="date">${results[leng-i-1][10]}</th>
+            </tr>`
+      document.getElementById('databaseContent').insertAdjacentHTML('beforeend', append) 
     }
 
     if(err)  throw err;
+    console.log(results);
     console.log('loaded next page');
   });
 }
