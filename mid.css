@@ -1,0 +1,117 @@
+table,td,th{
+    border:1px solid black;}
+
+
+table{
+    border-collapse: collapse;}
+
+
+#databaseSection {
+    color:black;}
+
+
+.tableHeader {
+    padding-left:1.3vw;
+    padding-right:1.3vw;
+    white-space: nowrap;
+    max-width:200px;}
+
+
+.matchID, .filename, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
+    max-width:200px;
+    word-wrap:break-word;}
+
+
+.filename{
+    max-width:100%;
+    white-space:nowrap;}
+
+
+.replaceImage, .altHeaderText, #altHeaderTextExtra, .replaceImageOpponent, .replaceImageDeck, .replaceImageExtra{
+    display: none;}
+
+
+.decknames{
+    white-space: nowrap;}
+
+
+#matchText, #fileText, .extraHeaderText, .replaceText, .replaceTextDeck{
+    display:inline-block;}
+
+
+.winRecord{
+    background-color: #59cf78;}
+
+
+@media only screen and (max-width:1600px){
+    #matchtext, #fileText{
+        display:none;}}
+
+
+@media only screen and (max-width:1480px){
+    .extraHeaderTextExtra, .replaceTextExtra{
+        display:none;}
+    
+    
+    #altHeaderTextExtra, .replaceImageExtra{
+        display:inline-block;}}
+
+
+@media only screen and (max-width:560px){
+    #matchID, .matchID, tr th:nth-child(1){
+        display:none;}}
+
+
+@media only screen and (max-width:1280px){
+    .replaceTextOpponent{
+        display:none;}
+    
+    .replaceImageOpponent{
+        display:inline-block;}}
+
+
+@media only screen and (max-width:1240px){
+    .replaceTextDeck{
+        display:none;}
+    
+    .replaceImageDeck{
+        display:inline-block;}}
+
+
+@media only screen and (max-width:1090px){
+    .tableHeader, .matchID, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
+        font-size:14px;}}
+
+
+@media only screen and (max-width:960px){
+    .tableHeader, .matchID, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
+        font-size:12px;}}
+
+
+@media only screen and (max-width:830px){
+    #type, .type, tr th:nth-child(10){
+        display:none;}}
+
+@media only screen and (max-width:750px){
+    .tableHeader, .matchID, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date{
+        font-size:12px;}
+
+    
+    .tableHeader {
+        padding-left:1.3vw;
+        padding-right:1.3vw;
+        white-space: nowrap;
+        max-width:200px;}
+    
+
+    .matchID, .players, .decknames, .p1Deck, .p2Deck, .turnOrder, .winList, .format, .type, .date {
+        word-wrap:break-word;}
+    
+        
+    .extraHeaderText, .replaceText{
+        display:none;}
+
+    
+    .altHeaderText, .replaceImage{
+        display: inline-block;}}
+
