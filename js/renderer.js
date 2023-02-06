@@ -31,6 +31,7 @@ function loadFirstPage(){
   var pjson = require('./package.json');
 
   let cmdDataLoad = {
+    //mode: 'json'
     mode: 'text',
     pythonOptions: ['-u'],
     args: ["loaded", pjson.version]
