@@ -33,6 +33,7 @@ for folder in mainFolders:
         #don't look inside any subdirectory
         break
     
+    #adds path to scp object
     scp.addPath(folderPath)
 
 
