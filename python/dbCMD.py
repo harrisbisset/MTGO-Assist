@@ -12,8 +12,18 @@ def openData():
     cursor.close()
     userConnection.close()
 
-    for i in matches:
-        print(json.dumps(i))
+    for match in matches:
+        for i, item in enumerate(match):
+            if i == 2:
+                print(item[0])
+                print(item[1])
+            if i == 3:
+                print(item.key(0))
+                print(item[0])
+                print(item.key(1))
+                print(item[1])
+            else:
+                print(item)
 
 
 
@@ -28,10 +38,10 @@ def getUserData():
 
 openData()
 
-if __name__ == "main":
-    pass
-else:
-    if sys.argv[1] == 'loaded':
-        openData()
-    if sys.argv[1] == 'getProfileData':
-        getUserData()
+# if __name__ == "main":
+#     pass
+# else:
+#     if sys.argv[1] == 'loaded':
+#         openData()
+#     if sys.argv[1] == 'getProfileData':
+#         getUserData()
