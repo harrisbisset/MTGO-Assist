@@ -13,3 +13,5 @@ v1.0.0
             selectElement = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[4]/td[2]/select')
             selectObject = Select(selectElement)
             selectObject.select_by_visible_text(format)
+
+cross platform difference in mtgScraper
