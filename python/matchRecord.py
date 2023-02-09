@@ -10,7 +10,7 @@ class MatchRecord:
         decklists = []
         extra = {'play':[], 'startingHands':[], 'winner':[]}
 
-        #gets matchLog
+        #gets matchLog as text in file
         with open(filename, 'rb') as f:
             #unknown characters are replaced by \ufffd (those question marks)
             self.matchLog = f.read().decode(encoding='utf-8', errors='replace')
@@ -18,11 +18,12 @@ class MatchRecord:
         #tries to create self.players
         try:
             self.getPlayers()
-
+            
+            #if no players are found
             if self.players == []:
                 return None, None, None, None
 
-            #if there is a problem reading the player names or the match is not 1v1 (fie invalid)
+            #if there is a problem reading the player names or the match is not 1v1 (file invalid)
         except (IndexError, ValueError):
             return None, None, None, None
 
@@ -140,21 +141,12 @@ class MatchRecord:
         return decklists
 
 
-
-
-    def getOnPlay(self, game):
-        # Who is on the play in this game?
-        # Returns 'player' or 'opponent'
-        onPlay = re.compile('(\S+) chooses to play first').search(' '.join(game[0])).group(1)
-        return self.players[self.players.index(onPlay)]
-
-
-
-
+    
+    
     def getStartingHands(self, game):
 
-        #format [(player1, cards), (player2, cards)]
-        regex = re.compile(f'({self.players[0]}|{self.players[1]}) begins the game with (\w+) cards in hand | ({self.players[0]}|{self.players[1]}) puts.+on the bottom of their library and begins the game with (\w+) cards in hand')
+        #format [cards, cards]
+        regex = re.compile(f'{self.players[0]}|{self.players[1]} begins the game with (\w+) cards in hand | ({self.players[0]}|{self.players[1]}) puts.+on the bottom of their library and begins the game with (\w+) cards in hand')
         startingHands = re.findall(regex, ' '.join(game[0]))
         startingHands = [tuple(b for b in i if len(b) > 1) for i in startingHands]
         return startingHands
@@ -164,15 +156,15 @@ class MatchRecord:
 
     def getWinner(self, game):
 
-        #determines the winner or loser
+        #checks which pattern occurs
         concededPattern = re.compile('(\S+) has conceded')
         winsPattern = re.compile('(\S+) wins the game')
         losesPattern = re.compile('(\S+) loses the game')
-
         conceded = concededPattern.search(' '.join([' '.join(i) for i in game]))
         wins = winsPattern.search(' '.join([' '.join(i) for i in game]))
         loses = losesPattern.search(' '.join([' '.join(i) for i in game]))
-
+        
+        #returns game result
         if wins:
             return self.players[self.players.index(wins.group(1))][0]
         elif conceded:
