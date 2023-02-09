@@ -11,6 +11,8 @@ class Scraper():
         self.paths = []
 
     def addPath(self, path):
+        
+        #adds path to object
         self.paths.append(path)
         
     def run(self):
@@ -28,8 +30,11 @@ class Scraper():
         dc = DriverController()
         
         for path in self.paths:
+            
+            #gets list of files in path
             fileList = [f for f in os.listdir(path) if f.endswith('.dat')]
-
+            
+            #gets list of files in database
             self.cursor.execute("SELECT filename FROM matches;")
             filenames = self.cursor.fetchall()
 
