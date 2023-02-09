@@ -12,18 +12,8 @@ def openData():
     cursor.close()
     userConnection.close()
 
-    for match in matches:
-        for i, item in enumerate(match):
-            if i == 2:
-                print(item[0])
-                print(item[1])
-            if i == 3:
-                print(item.key(0))
-                print(item[0])
-                print(item.key(1))
-                print(item[1])
-            else:
-                print(item)
+    for i, match in enumerate(matches):
+        matches[i] = [json.dumps(match)]
 
 
 
