@@ -11,9 +11,17 @@ def openData():
 
     cursor.close()
     userConnection.close()
-
+    
+    #reformats
     for i, match in enumerate(matches):
         matches[i] = [json.dumps(match)]
+    
+    #sends data to renderer.js
+    for count, i in enumerate(matches):
+        if count == 2:
+            pass
+        else:
+            print(i)
 
 
 
