@@ -13,7 +13,7 @@ CLASS MatchRecord:
             attempt:
             	self.GET_PLAYERS()
             if error:
-            	return None, None, None, None
+            	return None
 
             self.FORMAT_LINES()
 
