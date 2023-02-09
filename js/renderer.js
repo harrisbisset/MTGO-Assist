@@ -7,6 +7,8 @@ function runPythonSync(){
     });
 }
 
+//merge this and under
+
 function loadNextPage(){
     var pyshell =  require('python-shell');
     var pjson = require('./package.json');
@@ -31,14 +33,13 @@ function loadFirstPage(){
   var pjson = require('./package.json');
 
   let cmdDataLoad = {
-    mode: 'json',
+    mode: 'text',
     pythonOptions: ['-u'],
     args: ["loaded", pjson.version]
   }
 
   pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
-    console.log(results)
-    let leng = results.length
+    let leng = results.length;
 
     for (let i = 0; i < results.length; i++){
       let append = `<tr>
@@ -54,7 +55,7 @@ function loadFirstPage(){
               <th class="type">${results[leng-i-1][9]}</th>
               <th class="date">${results[leng-i-1][10]}</th>
             </tr>`
-      document.getElementById('databaseContent').insertAdjacentHTML('beforeend', append) 
+      document.getElementById('databaseContent').insertAdjacentHTML('beforeend', append) ;
     }
 
     if(err)  throw err;
@@ -64,7 +65,7 @@ function loadFirstPage(){
 }
 
 document.querySelector('#pyBtnSync').addEventListener('click', () => {
-    runPythonSync();
+  runPythonSync();
 })
 
 document.querySelector('#pyBtnNextPage').addEventListener('click', () => {
