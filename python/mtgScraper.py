@@ -97,7 +97,6 @@ class Scraper():
 
 
 
-
     def checkDB(self):
         try:
             return self.cursor.execute("SELECT MAX(matchID) FROM matches;")
@@ -107,12 +106,12 @@ class Scraper():
             self.cursor.execute("""CREATE TABLE matches(
                                 matchID INTEGER PRIMARY KEY, 
                                 filename TEXT, 
-                                players TEXT NOT NULL, 
-                                decknames TEXT, 
-                                decklistP1 TEXT NOT NULL, 
-                                decklistP2 TEXT NOT NULL, 
-                                firstTurns TEXT NOT NULL, 
-                                winLoss TEXT NOT NULL, 
+                                players BLOB NOT NULL, 
+                                decknames BLOB, 
+                                decklistP1 BLOB NOT NULL, 
+                                decklistP2 BLOB NOT NULL, 
+                                firstTurns BLOB NOT NULL, 
+                                winLoss BLOB NOT NULL, 
                                 format TEXT, 
                                 type TEXT, 
                                 date TEXT NOT NULL);""")
@@ -135,7 +134,7 @@ class Scraper():
     def sqlliteDriverData(self, filename, dateTime, dictNames, extra, decklists, players, matchlog):
         #inserts match into database
 
-        data = (filename, str(players), str(dictNames), str(decklists[0]), str(decklists[1]), str(extra['play']), str(extra['winner']), 'NA', 'Constructed', dateTime)
+        data = (filename, json.dumps(players), json.dumps(dictNames), json.dumps(decklists[0]), json.dumps(decklists[1]), json.dumps(extra['play']), json.dumps(extra['winner']), 'NA', 'Constructed', dateTime)
 
         self.cursor.execute("INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", data)
         self.userConnection.commit()
