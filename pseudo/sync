@@ -1,13 +1,13 @@
 IMPORT mtgScraper as MODULE named Scraper
 
-localUser = get_local_useer
+localUser = GET_LOCAL_USER
 path = 'C:\Users\' + localUser + '\AppData\Local\Apps\2.0\Data\'
 
 for i = 0 TO 2:
-    folder = get_directories(path)
+    folder = GET_DIRECTORIES(path)
     path = path + '\' + folder
 
-mainFolders = get_directories(path)
+mainFolders = GET_DIRECTORIES(path)
 
 scp = Scraper()
 
@@ -18,11 +18,11 @@ for folder in mainFolders:
     for (folderPath, directory, fileNames) in walk(folderPath):
         
         if length(directory) > 1:
-            directory.remove('.vs')
+            directory.REMOVE('.vs')
         
         folderPath = folderPath + '\' + directory
-        break
+        exit loop
 
-    scp.addPath(folderPath)
+    scp.ADD_PATH(folderPath)
 
-scp.run()
+scp.RUN()
