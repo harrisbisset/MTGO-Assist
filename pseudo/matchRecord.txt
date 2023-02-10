@@ -3,7 +3,7 @@ CLASS MatchRecord:
     CONSTRUCTOR(self):
         instansiate_object
 
-    METHODS(self)
+    METHODS(self):
     	method GET_DECKLISTS(self, filename):
             decklists = array()
             extra = {'play':[], 'startingHands':[], 'winner':[]}
