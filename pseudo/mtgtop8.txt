@@ -3,7 +3,7 @@ CLASS DRIVER_CONTROLLER:
     CONSTRUCTOR(self)
         self.url = "https://mtgtop8.com/search"
 
-        self.driver = webdriver.connect()
+        self.driver = webdriver.CONNECT()
     
     METHODS(self)
 	
@@ -26,35 +26,35 @@ CLASS DRIVER_CONTROLLER:
 
 
     	method GET_SITE(self):
-            self.driver.get(self.url)
+            self.driver.get(self.URL)
 
 
 
     	method INPUT_FORM_DATA(self, deckList, date):
             
-            self.driver.find(SIDEBOARD).click()
+            self.driver.find(SIDEBOARD).CLICK()
 
-            textarea = self.driver.find(CARDS)
+            textarea = self.driver.FIND(CARDS)
 
             for card in deckList:
-                textarea.type(card + RETURN)
+                textarea.TYPE(card + RETURN)
 
 
-            self.driver.find(DATE_ELEMENT).type(date)
+            self.driver.FIND(DATE_ELEMENT).TYPE(date)
 
-            self.driver.find(SUBMIT).click()
+            self.driver.FIND(SUBMIT).CLICK()
 
 
 
         method clearCookieBanner(self):
-            self.driver.find(COOKIE_WINDOW).click()
+            self.driver.find(COOKIE_WINDOW).CLICK()
 
 
 
     	method getDeckNames(self):
-            deckNames = array()
+            deckNames = []
         
-            decks = length(self.driver.find_all(DECKS_ON_PAGE))
+            decks = length(self.driver.FIND_ALL(DECKS_ON_PAGE))
         
             if decks < 1:
             	return 'unknown'
@@ -63,14 +63,14 @@ CLASS DRIVER_CONTROLLER:
             	decks = 5
 
             for deck = 1 To length(decks):
-            	deckNames.append(self.driver.find(DECK_NAME).text)
+            	deckNames.append(self.driver.FIND(DECK_NAME).TEXT)
 
             return deckNames
 
 
 
     	method QUIT_DC(self):
-            self.driver.quit()
+            self.driver.QUIT()
 
 
 
