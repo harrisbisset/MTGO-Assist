@@ -131,12 +131,12 @@ class Scraper():
 
 
     def sqlliteDriverData(self, filename, dateTime, dictNames, extra, decklists, players, matchlog):
+        
         #inserts match into database
-
         data = (filename, json.dumps(players), json.dumps(dictNames), json.dumps(decklists[0]), json.dumps(decklists[1]), json.dumps(extra['play']), json.dumps(extra['winner']), 'NA', 'Constructed', dateTime)
-
         self.cursor.execute("INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", data)
         self.userConnection.commit()
+        
         self.cursor.execute("SELECT MAX(matchID) FROM matches;")
         matchID = self.cursor.fetchone()
 
