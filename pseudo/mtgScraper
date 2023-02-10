@@ -1,0 +1,126 @@
+IMPORT mtgtop8 as MODULE named DriverController
+IMPORT matchRecord as MODULE named MatchRecord
+
+CLASS Scraper:
+    CONSTRUCTOR(self):
+        instansiate_object
+        self.paths = []
+    
+    METHODS(self):
+        method ADD_PATH(self, path):
+            self.paths.append(path)
+
+        method RUN(self):
+
+            self.OPEN_CONN()
+
+            self.CHECK_DB()
+
+            top8Conn = self.CHECK_INTERNET()
+
+            match = MatchRecord
+            dc = DriverController
+
+            for path in self.paths:
+
+                fileList = GET_DIRECTORIES(path)
+                
+                self.cursor.EXECUTE("SELECT filename FROM matches;")
+                filenames = self.cursor.FETCHALL()
+
+                for filename in fileList:
+
+                    if filename in filenames:
+                        exit loop
+
+                    decklists, extra, matchlog, players = match.getDecklists(path+'/'+filename)
+
+                    if decklists is not None:
+
+                        dateTime = filename.GET_DATE
+
+                        if top8Conn = True:
+                            dictNames = dc.RETURN_DICT_NAMES(decklists, date)
+                        else:
+                            dictNames = "NA"
+
+                        self.SQLITE_DRIVER_DATA(filename, date, dictNames, extra, decklists, players, matchlog)
+
+            dc.QUIT_DC()
+
+            self.CLOSE_CONN()
+
+
+
+
+        method OPEN_CONN(self):
+            self.conn = CONNECT_TO_DATABASE
+            self.cursor = CURSOR
+
+
+
+
+        method CHECK_INTERNET(self):
+            url = 'https://mtgtop8.com/'
+            
+            try:
+                URLLIB.REQUEST.URLOPEN(url)
+                connection_to_internet = True
+            except:
+                connection_to_internet = False
+
+            return connection_to_internet
+
+
+
+        method CHECK_DB(self):
+            if self.conn = FAILED:
+                self.cursor.EXECUTE("""CREATE TABLE matches(
+                                    matchID INTEGER PRIMARY KEY, 
+                                    filename TEXT, 
+                                    players BLOB NOT NULL, 
+                                    decknames BLOB, 
+                                    decklistP1 BLOB NOT NULL, 
+                                    decklistP2 BLOB NOT NULL, 
+                                    firstTurns BLOB NOT NULL, 
+                                    winLoss BLOB NOT NULL, 
+                                    format TEXT, 
+                                    type TEXT, 
+                                    date TEXT NOT NULL);""")
+                self.conn.CONNECT()
+
+                self.cursor.EXECUTE("""CREATE TABLE games(
+                                    gamesID INTEGER NOT NULL PRIMARY KEY, 
+                                    gameNum INTEGER NOT NULL,
+                                    startingHands TEXT NOT NULL,
+                                    gameLog TEXT NOT NULL, 
+                                    winner TEXT, 
+                                    matchID INTEGER REFERENCES matches(matchID) ON UPDATE CASCADE);""")
+                self.conn.COMMIT()
+
+
+
+
+        method SQLITE_DRIVER_DATA(self, filename, dateTime, dictNames, extra, decklists, players, matchlog):
+
+            data = (filename, players, dictNames, decklists[0], decklists[1], extra['play'], extra['winner'], 'NA', 'Constructed', dateTime)
+            self.cursor.EXECUTE("INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", data)
+            
+            self.conn.COMMIT
+            self.cursor.EXECUTE("SELECT MAX(matchID) FROM matches;")
+            matchID = self.cursor.FETCH_ONE
+            
+            gameNo = 0
+            for game in matchlog:
+            
+                //parameterized query
+                data = (matchID[0], matchlog.INDEX(game)), extra['startingHands'], matchlog[gameNo], extra['winner'][matchlog.INDEX(game)])
+                self.cursor.EXECUTE("INSERT INTO games(matchID, gameNum, startinghands, gameLog, winner)  VALUES(?,?,?,?,?);", data)
+                gameNo = gameNo + 1
+
+
+
+        method CLOSE_CONN(self):
+            self.conn.COMMIT
+            self.conn.CLOSE
+            self.cursor.CLOSE
