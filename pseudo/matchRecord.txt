@@ -5,10 +5,10 @@ CLASS MatchRecord:
 
     METHODS(self):
     	method GET_DECKLISTS(self, filename):
-            decklists = array()
+            decklists = []
             extra = {'play':[], 'startingHands':[], 'winner':[]}
 
-            self.matchLog = filename.decode()
+            self.matchLog = filename.DECODE()
 
             attempt:
             	self.GET_PLAYERS()
@@ -23,25 +23,25 @@ CLASS MatchRecord:
 
             for game in self.matchLog:
             	if game doesn't exist:
-                    break
+                    exit loop
             
                 gameDecklists = self.GET_DECKLISTS(game)
             	if gameDecklists doesn't exist:
-                    break
+                    exit loop
 
-            	decklists.add_to_array(gameDecklists)
+            	decklists.append(gameDecklists)
 
             	attmept:
-                    extra['play'].add_to_array(self.GET_ON_PLAY(game))
+                    extra['play'].append(self.GET_ON_PLAY(game))
             	if error:
-                    extra['play'].add_to_array('unknown')
+                    extra['play'].append('unknown')
             
             	attempt:
-                    extra['startingHands'].add_to_array(self.GET_STARTING_HANDS(game))
+                    extra['startingHands'].append(self.GET_STARTING_HANDS(game))
             	if error:
-                    extra['startingHands'].add_to_array('unknown')
+                    extra['startingHands'].append('unknown')
 
-            	extra['winner'].add_to_array(self.getWinner(game))
+            	extra['winner'].append(self.getWinner(game))
 
         return decklists, extra, self.matchLog, self.players
 
@@ -49,7 +49,7 @@ CLASS MatchRecord:
 
 
     method GET_PLAYERS(self):
-        players = re.compile('@P(\S+) rolled').findall(self.matchLog)
+        players = self.matchLog.FIND_ALL(('@P(\S+) rolled')
         
         #the first player in the game log is always the user
         self.players = list(players)
@@ -57,10 +57,10 @@ CLASS MatchRecord:
 
 
     method FORMAT_LINES(self):
-        filteredMatch = self.matchLog.remove_non_ascii
-        filteredMatch = filteredMatch.remove_random_characters
-        filteredMatch = filteredMatch.split_by_game
-	filteredMatch = filteredMatch.split_by_turn
+        filteredMatch = self.matchLog.REMOVE_NON_ASCII
+        filteredMatch = filteredMatch.REMOVE_RANDOM_CHARACTERS
+        filteredMatch = filteredMatch.SPLIT_BY_GAME
+	filteredMatch = filteredMatch.SPLIT_BY_TURN
         self.matchLog = filteredMatch
 
 
@@ -69,21 +69,21 @@ CLASS MatchRecord:
     method GET_DECKLISTS(self, game):
         decklists = {self.players[0]: dict(), self.players[1]: dict()}
 
-        playCardPattenMatches = self.matchLog.get_played_cards
+        playCardPattenMatches = self.matchLog.GET_PLAYED_CARDS
 	playCardPattern = '('+self.players[0]+'|'+self.players[1]+') (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])'
 	revealedCardPattern = '('+self.players[0]+'|'+self.players[1]+') (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])'
 
         for turn in game:
-            #finds matched patterns
-            playCardMatches = playCardPattern.find_all(turn)
-            revealedMatches = revealedCardPattern.find_all(turn)
+
+	    playCardMatches = playCardPattern.FIND_ALL(turn)
+            revealedMatches = revealedCardPattern.FIND_ALL(turn)
 
 
             for cardPlayed in playCardMatches:
 	    	//cardPlayer is stored as [player, card]
 		
                 if cardPlayed[1] in revealedMatches:
-                    revealedMatches.pop(revealedMatches.index(actions[3]))
+                    revealedMatches.remove(revealedMatches.INDEX([cardPlayed[1]))
 		    
                 if cardPlayed[1] in decklists[card]:
                     decklists[cardPlayed[0]][cardPlayed[1]] += 1
@@ -106,14 +106,14 @@ CLASS MatchRecord:
 
 
      method GET_ON_PLAY(self, game):
-        onPlay = game.search('(\S+) chooses to play first')
+        onPlay = game.SEARCH('(\S+) chooses to play first')
         return onPlay
 
 
 
 
     method GET_STARTING_HANDS(self, game):
-        startingHands = self.matchLog.find_all_starting_hands_in_game
+        startingHands = self.matchLog.FIND_ALL_STARTING_HANDS_IN_GAME
         return startingHands
 
 
@@ -124,9 +124,9 @@ CLASS MatchRecord:
         winsPattern = '(\S+) wins the game'
         losesPattern = '(\S+) loses the game'
 
-        conceded = concededPattern.search(concededPattern)
-        wins = winsPattern.search(winsPattern)
-        loses = losesPattern.search(losesPattern)
+        conceded = concededPattern.SEARCH(concededPattern)
+        wins = winsPattern.SEARCH(winsPattern)
+        loses = losesPattern.SEARCH(losesPattern)
 
         if a player wins:
             return wins
