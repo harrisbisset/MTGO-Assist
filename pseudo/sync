@@ -15,7 +15,7 @@ for folder in mainFolders:
     
     folderPath = path + '\' + folder + '\' + 'Data\AppFiles'
 
-    for (folderPath, directory, fileNames) in walk(folderPath):
+    for (folderPath, directory, fileNames) in WALK(folderPath):
         
         if length(directory) > 1:
             directory.REMOVE('.vs')
