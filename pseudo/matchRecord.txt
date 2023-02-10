@@ -18,7 +18,7 @@ CLASS MatchRecord:
             self.FORMAT_LINES()
 
             if length(self.matchLog) < 2:
-            	return None, None, None, None
+            	return None
 
 
             for game in self.matchLog:
@@ -69,38 +69,35 @@ CLASS MatchRecord:
     def getDeckLists(self, game):
         decklists = {self.players[0]: dict(), self.players[1]: dict()}
 
-        #stores cards each player has played, revealed, discarded, cycled
-        #game actions are formatted as @P(player_name) (casts|plays|discards|cycles|reveals)
-        #card names are formatted as @[Card Name@:numbers,numbers:@]
-        playCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
-        revealedCardPattern = re.compile(f'({self.players[0]}|{self.players[1]}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
+        playCardPattenMatches = self.matchLog.get_played_cards
+	playCardPattern = '('+self.players[0]+'|'+self.players[1]+') (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])'
+	revealedCardPattern = '('+self.players[0]+'|'+self.players[1]+') (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])'
 
         for turn in game:
             #finds matched patterns
-            playCardMatches = playCardPattern.findall(' '.join(turn))
-            revealedMatches = revealedCardPattern.findall(' '.join(turn))
+            playCardMatches = playCardPattern.find_all(turn)
+            revealedMatches = revealedCardPattern.find_all(turn)
 
 
-            for actions in playCardMatches:
-
-                #if a card has been revealed, and has interacted with the game, remove it from revealedMatches
-                if actions[3] in revealedMatches:
+            for cardPlayed in playCardMatches:
+	    	//cardPlayer is stored as [player, card]
+		
+                if cardPlayed[1] in revealedMatches:
                     revealedMatches.pop(revealedMatches.index(actions[3]))
-
-                #adds card to decklists
-                if actions[3] in decklists[actions[0]]:
-                    decklists[actions[0]][actions[3]] += 1
+		    
+                if cardPlayed[1] in decklists[card]:
+                    decklists[cardPlayed[0]][cardPlayed[1]] += 1
                 else:
-                    decklists[actions[0]].update({actions[3]:1})
+                    decklists[cardPlayed[0]][cardPlayed[1]] = 1
 
 
-            for revealed in revealedMatches:
+            for cardRevealed in revealedMatches:
+	    	//cardRevealed is stored as [player, card]
 
-                #adds card to decklists
-                if revealed[3] in decklists[revealed[0]]:
-                    decklists[revealed[0]][revealed[3]] += 1
+                if cardRevealed[1] in decklists[cardRevealed[0]]:
+                    decklists[cardRevealed[0]][cardRevealed[1]] += 1
                 else:
-                    decklists[revealed[0]].update({revealed[3]:1})
+                    decklists[cardRevealed[0]] = 1
 
 
         return decklists
@@ -108,42 +105,27 @@ CLASS MatchRecord:
 
 
 
-    def getOnPlay(self, game):
-        # Who is on the play in this game?
-        # Returns 'player' or 'opponent'
-        onPlay = re.compile('(\S+) chooses to play first').search(' '.join(game[0])).group(1)
-        return self.players[self.players.index(onPlay)]
-
-
-
-
     def getStartingHands(self, game):
-
-        #format [(player1, cards), (player2, cards)]
-        regex = re.compile(f'({self.players[0]}|{self.players[1]}) begins the game with (\w+) cards in hand | ({self.players[0]}|{self.players[1]}) puts.+on the bottom of their library and begins the game with (\w+) cards in hand')
-        startingHands = re.findall(regex, ' '.join(game[0]))
-        startingHands = [tuple(b for b in i if len(b) > 1) for i in startingHands]
+        startingHands = self.matchLog.find_all_starting_hands_in_game
         return startingHands
 
 
 
 
     def getWinner(self, game):
+        concededPattern = '(\S+) has conceded'
+        winsPattern = '(\S+) wins the game'
+        losesPattern = '(\S+) loses the game'
 
-        #determines the winner or loser
-        concededPattern = re.compile('(\S+) has conceded')
-        winsPattern = re.compile('(\S+) wins the game')
-        losesPattern = re.compile('(\S+) loses the game')
+        conceded = concededPattern.search(concededPattern)
+        wins = winsPattern.search(winsPattern)
+        loses = losesPattern.search(losesPattern)
 
-        conceded = concededPattern.search(' '.join([' '.join(i) for i in game]))
-        wins = winsPattern.search(' '.join([' '.join(i) for i in game]))
-        loses = losesPattern.search(' '.join([' '.join(i) for i in game]))
-
-        if wins:
-            return self.players[self.players.index(wins.group(1))][0]
-        elif conceded:
-            return [i for i in self.players if i not in self.players[self.players.index(conceded.group(1))]][0]
-        elif loses:
-            return self.players[self.players.index(loses.group(1))][0]
+        if a player wins:
+            return wins
+        else if a player conceded:
+	    return conceded
+        else if a player loses:
+            return loses
         else:
             return 'NA'
