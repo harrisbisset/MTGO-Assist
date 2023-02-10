@@ -140,7 +140,16 @@ class MatchRecord:
 
         return decklists
 
+    
 
+    
+    def getOnPlay(self, game):
+        # Who is on the play in this game?
+        # Returns 'player' or 'opponent'
+        onPlay = re.compile('(\S+) chooses to play first').search(' '.join(game[0])).group(1)
+        return self.players[self.players.index(onPlay)]
+    
+    
     
     
     def getStartingHands(self, game):
