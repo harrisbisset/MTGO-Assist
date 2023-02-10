@@ -78,7 +78,6 @@ class Scraper():
     def openConn(self):
         self.userConnection = sqlite3.connect("./database/mtgoAssist.db")
         self.cursor = self.userConnection.cursor()
-        # self.userConnection.execute("PRAGMA foreign_keys = 1")
 
 
 
