@@ -4,6 +4,7 @@ import os.path
 from datetime import datetime
 import urllib.request
 import sqlite3
+import json
 
 
 class Scraper():
