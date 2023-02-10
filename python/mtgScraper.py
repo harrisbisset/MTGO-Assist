@@ -126,7 +126,6 @@ class Scraper():
                                 winner TEXT, 
                                 matchID INTEGER REFERENCES matches(matchID) ON UPDATE CASCADE);""")
             self.userConnection.commit()
-        return 
         
 
 
