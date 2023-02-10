@@ -86,9 +86,9 @@ class Scraper():
     def checkInternet(self):
 
         #tries to open mtgtop8.com, if it can't then program will not open later
-        host='https://mtgtop8.com/'
+        url = 'https://mtgtop8.com/'
         try:
-            urllib.request.urlopen(host)
+            urllib.request.urlopen(url)
             conInt = True
         except:
             conInt = False
@@ -99,7 +99,7 @@ class Scraper():
 
     def checkDB(self):
         try:
-            return self.cursor.execute("SELECT MAX(matchID) FROM matches;")
+            self.cursor.execute("SELECT MAX(matchID) FROM matches;")
         except:
 
             #creates the matches table
