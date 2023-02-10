@@ -121,9 +121,9 @@ class Scraper():
             self.cursor.execute("""CREATE TABLE games(
                                 gamesID INTEGER NOT NULL PRIMARY KEY, 
                                 gameNum INTEGER NOT NULL,
-                                startingHands TEXT NOT NULL,
-                                gameLog TEXT NOT NULL, 
-                                winner TEXT, 
+                                startingHands BLOB NOT NULL,
+                                gameLog BLOB NOT NULL, 
+                                winner BLOB, 
                                 matchID INTEGER REFERENCES matches(matchID) ON UPDATE CASCADE);""")
             self.userConnection.commit()
         
@@ -142,7 +142,7 @@ class Scraper():
 
         #inserts games into database
         for gameNo, game in enumerate(matchlog):
-            data = (int(matchID[0]), str(matchlog.index(game)), str(extra['startingHands']), str(matchlog[gameNo]), str(extra['winner'][matchlog.index(game)]))
+            data = (matchID[0], matchlog.index(game), json.dumps(extra['startingHands']), json.dumps(matchlog[gameNo]), json.dumps(extra['winner'][matchlog.index(game)]))
             self.cursor.execute("INSERT INTO games(matchID, gameNum, startinghands, gameLog, winner)  VALUES(?,?,?,?,?);", data)
                                                 
                                                         
