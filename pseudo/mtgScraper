@@ -92,9 +92,9 @@ CLASS Scraper:
                 self.cursor.EXECUTE("""CREATE TABLE games(
                                     gamesID INTEGER NOT NULL PRIMARY KEY, 
                                     gameNum INTEGER NOT NULL,
-                                    startingHands TEXT NOT NULL,
-                                    gameLog TEXT NOT NULL, 
-                                    winner TEXT, 
+                                    startingHands BLOB NOT NULL,
+                                    gameLog BLOB NOT NULL, 
+                                    winner BLOB, 
                                     matchID INTEGER REFERENCES matches(matchID) ON UPDATE CASCADE);""")
                 self.conn.COMMIT()
 
