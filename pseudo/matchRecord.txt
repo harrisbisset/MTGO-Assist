@@ -48,7 +48,7 @@ CLASS MatchRecord:
 
 
 
-    def getPlayers(self):
+    method GET_PLAYERS(self):
         players = re.compile('@P(\S+) rolled').findall(self.matchLog)
         
         #the first player in the game log is always the user
@@ -56,7 +56,7 @@ CLASS MatchRecord:
 
 
 
-    def formatLines(self):
+    method FORMAT_LINES(self):
         filteredMatch = self.matchLog.remove_non_ascii
         filteredMatch = filteredMatch.remove_random_characters
         filteredMatch = filteredMatch.split_by_game
@@ -66,7 +66,7 @@ CLASS MatchRecord:
 
 
 
-    def getDeckLists(self, game):
+    method GET_DECKLISTS(self, game):
         decklists = {self.players[0]: dict(), self.players[1]: dict()}
 
         playCardPattenMatches = self.matchLog.get_played_cards
@@ -105,14 +105,21 @@ CLASS MatchRecord:
 
 
 
-    def getStartingHands(self, game):
+     method GET_ON_PLAY(self, game):
+        onPlay = game.search('(\S+) chooses to play first')
+        return onPlay
+
+
+
+
+    method GET_STARTING_HANDS(self, game):
         startingHands = self.matchLog.find_all_starting_hands_in_game
         return startingHands
 
 
 
 
-    def getWinner(self, game):
+    method GET_WINNER(self, game):
         concededPattern = '(\S+) has conceded'
         winsPattern = '(\S+) wins the game'
         losesPattern = '(\S+) loses the game'
