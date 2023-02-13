@@ -33,27 +33,27 @@ function loadFirstPage(){
   var pjson = require('./package.json');
 
   let cmdDataLoad = {
-    mode: 'text',
+    mode: 'json',
     pythonOptions: ['-u'],
     args: ["loaded", pjson.version]
   }
 
   pyshell.PythonShell.run('./python/dbCMD.py', cmdDataLoad, function  (err, results)  {
-    let leng = results.length;
-
-    for (let i = 0; i < results.length; i++){
+    let leng = Object.keys(results[0]).length;
+    for (let i = 0; i < leng; i++){
+      
       let append = `<tr>
-              <th class="matchID" id="row${leng-i-1}">${results[leng-i-1][0]}</th>
-              <th class="filename"><p class="hidden">${results[leng-i-1][1]}</p><button class="replaceImageFilename">...</button></th>
-              <th class="players"><p class="replaceTextOpponent">${results[leng-i-1][2]}</p><button class="replaceImageOpponent">...</button></th>
-              <th class="decknames"><p class="replaceText">${results[leng-i-1][3]}</p><button class="replaceImage">...</button></th>
-              <th class="p1Deck"><p class="replaceTextDeck">${results[leng-i-1][4]}</p><button class="replaceImageDeck">...</button></th>
-              <th class="p2Deck"><p class="replaceTextDeck">${results[leng-i-1][5]}</p><button class="replaceImageDeck">...</button></th>
-              <th class="turnOrder"><p class="replaceTextExtra">${results[leng-i-1][6]}</p><button class="replaceImageExtra">...</button></th>
-              <th class="winList"><p class="replaceTextExtra">${results[leng-i-1][7]}</p><button class="replaceImageExtra">...</button></th>
-              <th class="format">${results[leng-i-1][8]}</th>
-              <th class="type">${results[leng-i-1][9]}</th>
-              <th class="date">${results[leng-i-1][10]}</th>
+              <th class="matchID" id="row${leng-i}">${Object.keys(results[0])[leng-i-1]}</th>
+              <th class="filename"><p class="hidden">${results[0][leng-i][0]['filename']}</p><button class="replaceImageFilename">...</button></th>
+              <th class="players"><p class="replaceTextOpponent">${results[0][leng-i][0]['players']}</p><button class="replaceImageOpponent">...</button></th>
+              <th class="decknames"><p class="replaceText">${JSON.stringify(results[0][leng-i][0]['deckNames'][0])}</p><button class="replaceImage">...</button></th>
+              <th class="p1Deck"><p class="replaceTextDeck">${JSON.stringify(results[0][leng-i][0]['P1'][0])}</p><button class="replaceImageDeck">...</button></th>
+              <th class="p2Deck"><p class="replaceTextDeck">${JSON.stringify(results[0][leng-i][0]['P2'][0])}</p><button class="replaceImageDeck">...</button></th>
+              <th class="turnOrder"><p class="replaceTextExtra">${results[0][leng-i][0]['play']}</p><button class="replaceImageExtra">...</button></th>
+              <th class="winList"><p class="replaceTextExtra">${results[0][leng-i][0]['winner']}</p><button class="replaceImageExtra">...</button></th>
+              <th class="format">${results[0][leng-i][0]['format']}</th>
+              <th class="type">${results[0][leng-i][0]['type']}</th>
+              <th class="date">${results[0][leng-i][0]['date']}</th>
             </tr>`
       document.getElementById('databaseContent').insertAdjacentHTML('beforeend', append) ;
     }
