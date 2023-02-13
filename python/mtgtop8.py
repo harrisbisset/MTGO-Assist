@@ -27,28 +27,30 @@ class DriverController():
 
 
 
-    def returnDictNames(self, deckLists, date):
+    def returnDeckName(self, deckLists, date, player):
         #calls the 'getSite()' method to open the url through the driver
         self.getSite()
 
         #calls the 'cookieBanner()' method to try and clear the cookie banner
         self.clearCookieBanner()
 
+        deckLists = self.refactorDecklist(deckLists)
+
         #calls the 'inputFormData()' method to get all decks to be scraped
-        self.inputFormData(self.refactorDecklist(deckLists), date)
+        self.inputFormData(deckLists[player][0], date)
 
         #gets the deck urls and names from the 'getDeckUrls()' method
         deckNames = self.getDeckNames()
 
         #if there are no decks found, then return deckNames (will have value of 'unknown')
         if deckNames == 'unknown':
-            self.quit()
+            self.quitDc()
             return deckNames
 
         #calls getDeckName() to create a dictionary of deckNames and %
         dictNames = self.getDictNames(deckNames)
 
-        return dictNames
+        return dictNames, deckLists
 
 
 
@@ -66,16 +68,11 @@ class DriverController():
         textarea = self.driver.find_element(By.XPATH, '//textarea[@name="cards"]')
 
         #writes the cards to the textbox
-        for card in deckList[0]:
+        for card in deckList:
             textarea.send_keys(card + Keys.RETURN)
 
-        #remormat date in matchRecord
-        #reformats the date
-        x, y, z = date.split('/')
-        date = z + '/' + y + '/' + x
-
         #sets date, so deck possibilites from after that game aren't considered (as they don't exist at the time of playing)
-        self.driver.find_element(By.XPATH, '//input[@name="date_end"]').send_keys(date)
+        self.driver.find_element(By.XPATH, '//input[@name="date_end"]').send_keys(date['date'])
 
         #clicks the submit button of the form
         self.driver.find_element(By.XPATH, '//td[@colspan="2"]/input[@type="submit"]').click()
@@ -122,18 +119,14 @@ class DriverController():
 
 
     def refactorDecklist(self, deckLists):
-        cards = [dict(), dict()]
+        cards = {}
         
-        for u, game in enumerate(deckLists):
-            for i, player in enumerate(game):
-                for card in game[player]:
-                    val = deckLists[u][player][card]
-                    try:
-                        if val > cards[i][card]:
-                            cards[i].update({f'{card}':val})
-                    except:
-                        cards[i].update({f'{card}':val})
-            
+        for game in deckLists:
+            for player in deckLists[game]:
+                cards[player] = [{}]
+                for card in deckLists[game][player]:
+                    cards[player][0].update({f'{card}':deckLists[game][player][card]})
+        
         return cards
         
 
