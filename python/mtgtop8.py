@@ -27,7 +27,7 @@ class DriverController():
 
 
 
-    def returnDeckName(self, deckLists, date, player):
+    def returnDeckName(self, deckLists, date):
         #calls the 'getSite()' method to open the url through the driver
         self.getSite()
 
@@ -37,7 +37,7 @@ class DriverController():
         deckLists = self.refactorDecklist(deckLists)
 
         #calls the 'inputFormData()' method to get all decks to be scraped
-        self.inputFormData(deckLists[player][0], date)
+        self.inputFormData(deckLists['P1'][0], date)
 
         #gets the deck urls and names from the 'getDeckUrls()' method
         deckNames = self.getDeckNames()
@@ -120,12 +120,15 @@ class DriverController():
 
     def refactorDecklist(self, deckLists):
         cards = {}
-        
         for game in deckLists:
-            for player in deckLists[game]:
-                cards[player] = [{}]
+            for i, player in enumerate(deckLists[game]):
+                if i == 0:
+                    tempPlayer = 'P2'
+                else:
+                    tempPlayer = 'P1'
+                cards[tempPlayer] = [{}]
                 for card in deckLists[game][player]:
-                    cards[player][0].update({f'{card}':deckLists[game][player][card]})
+                    cards[tempPlayer][0].update({f'{card}':deckLists[game][player][card]})
         
         return cards
         
@@ -134,14 +137,19 @@ class DriverController():
     def getDictNames(self, deckNames):
         
         #creates a dictionary of deckNames
-        dictNames = {deckName:0 for deckName in deckNames}
-
+        dictNames = {'deckNames':[{deckName:0 for deckName in deckNames}]}
+        print(dictNames)
         #gets number of decks with same name
         for deckName in deckNames:
-            dictNames[deckName] = dictNames[deckName] + 1
+            print(deckName)
+            dictNames['deckNames'][0][deckName] = dictNames['deckNames'][0][deckName] + 1
         
         #gets percentage chance of said deck
-        for deckName in dictNames:
-            dictNames[deckName] = dictNames[deckName] / len(deckNames)
+        for deckName in dictNames['deckNames'][0]:
+            print(deckName)
+            print(len(deckNames))
+            print(dictNames['deckNames'][0])
+            print(dictNames['deckNames'][0][deckName])
+            dictNames['deckNames'][0][deckName] = dictNames['deckNames'][0][deckName] / len(deckNames)
 
         return dictNames
