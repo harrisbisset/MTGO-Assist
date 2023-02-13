@@ -56,19 +56,21 @@ class Scraper():
                     #gets and reformats date
                     dateTime = str(datetime.fromtimestamp(os.path.getmtime(path + '\\' + filename)))
                     x, y, z = dateTime.split(' ')[0].split('-')
-                    date = z + '/' + y + '/' + x
-
+                    date = {'date':f'{z}/{y}/{x}'}
+                    
                     if top8Conn == True:
                         #gets the possible deck names from DriverController
-                        dictNames = dc.returnDictNames(decklists, date)
+                        deckName, matchLists = dc.returnDeckName(decklists, date, players[1])
                     else:
-                        dictNames = "NA"
-                        
+                        deckName = "NA"
+                    
+                    
                     #sends info to sqliite db
-                    self.sqlliteDriverData(filename, date, dictNames, extra, decklists, players, matchlog)
+                    self.sqlliteDriverData({'filename':filename}, dateTime, deckName, extra, decklists, {'players':players}, matchlog, matchLists)
 
+        
         #closes webdriver
-        dc.quit()
+        dc.quitDc()
             
         #close connection
         self.closeConn()
@@ -105,23 +107,24 @@ class Scraper():
             #creates the matches table
             self.cursor.execute("""CREATE TABLE matches(
                                 matchID INTEGER PRIMARY KEY, 
-                                filename TEXT, 
+                                filename BLOB, 
                                 players BLOB NOT NULL, 
                                 decknames BLOB, 
-                                decklistP1 BLOB NOT NULL, 
-                                decklistP2 BLOB NOT NULL, 
+                                decklistP1 BLOB, 
+                                decklistP2 BLOB, 
                                 firstTurns BLOB NOT NULL, 
-                                winLoss BLOB NOT NULL, 
-                                format TEXT, 
-                                type TEXT, 
-                                date TEXT NOT NULL);""")
+                                extra BLOB NOT NULL, 
+                                format BLOB, 
+                                type BLOB, 
+                                date BLOB NOT NULL);""")
             self.userConnection.commit()
 
             #creates games table
             self.cursor.execute("""CREATE TABLE games(
                                 gamesID INTEGER NOT NULL PRIMARY KEY, 
                                 gameNum INTEGER NOT NULL,
-                                startingHands BLOB NOT NULL,
+                                decklistP1 BLOB,
+                                decklistP2 BLOB,
                                 gameLog BLOB NOT NULL, 
                                 winner BLOB, 
                                 matchID INTEGER REFERENCES matches(matchID) ON UPDATE CASCADE);""")
@@ -130,22 +133,24 @@ class Scraper():
 
 
 
-    def sqlliteDriverData(self, filename, dateTime, dictNames, extra, decklists, players, matchlog):
-        
+    def sqlliteDriverData(self, filename, dateTime, deckName, extra, decklists, players, matchlog, matchLists):
+        player2List = matchLists.pop(players['players'][0])
+
         #inserts match into database
-        data = (filename, json.dumps(players), json.dumps(dictNames), json.dumps(decklists[0]), json.dumps(decklists[1]), json.dumps(extra['play']), json.dumps(extra['winner']), 'NA', 'Constructed', dateTime)
-        self.cursor.execute("INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, winLoss, format, type, date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", data)
+        data = (json.dumps(filename), json.dumps(players), json.dumps(deckName), json.dumps(matchLists), json.dumps({players['players'][0]:player2List}), json.dumps(extra['play']), json.dumps(extra['winner']), json.dumps({'format':'NA'}), json.dumps({'type':'Constructed'}), json.dumps({'date':dateTime}))
+        
+        self.cursor.execute("INSERT INTO matches(filename, players, decknames, decklistP1, decklistP2, firstTurns, extra, format, type, date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", data)
         self.userConnection.commit()
         
         self.cursor.execute("SELECT MAX(matchID) FROM matches;")
         matchID = self.cursor.fetchone()
 
         #inserts games into database
-        for gameNo, game in enumerate(matchlog):
-            data = (matchID[0], matchlog.index(game), json.dumps(extra['startingHands']), json.dumps(matchlog[gameNo]), json.dumps(extra['winner'][matchlog.index(game)]))
-            self.cursor.execute("INSERT INTO games(matchID, gameNum, startinghands, gameLog, winner)  VALUES(?,?,?,?,?);", data)
-                                                
-                                                        
+        for gameNo in range(1,len(matchlog)):
+            data = (matchID[0], gameNo, json.dumps(decklists[gameNo][players['players'][1]]), json.dumps(decklists[gameNo][players['players'][0]]), json.dumps(matchlog[gameNo]), json.dumps(extra['winner'][gameNo-1]))
+            self.cursor.execute("INSERT INTO games(matchID, gameNum, decklistP1, decklistP2, gameLog, winner)  VALUES(?,?,?,?,?,?);", data)
+            
+            
 
 
     def closeConn(self):
