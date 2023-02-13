@@ -12,16 +12,16 @@ def openData():
     cursor.close()
     userConnection.close()
     
-    #reformats
-    for i, match in enumerate(matches):
-        matches[i] = [json.dumps(match)]
-    
-    #sends data to renderer.js
-    for count, i in enumerate(matches):
-        if count == 2:
-            pass
-        else:
-            print(i)
+    results = {}
+
+    for matchTuple in matches:
+        results[matchTuple[0]] = [{}]
+        for data in matchTuple:
+            if isinstance(data, int) == False:
+                data = json.loads(data)
+                results[matchTuple[0]][0][list(data.keys())[0]] = data[list(data.keys())[0]]
+                
+    print(json.dumps(results))
 
 
 
@@ -34,12 +34,10 @@ def getUserData():
     cursor.close()
     userConnection.close()
 
-openData()
-
-# if __name__ == "main":
-#     pass
-# else:
-#     if sys.argv[1] == 'loaded':
-#         openData()
-#     if sys.argv[1] == 'getProfileData':
-#         getUserData()
+if __name__ == "main":
+    pass
+else:
+    if sys.argv[1] == 'loaded':
+        openData()
+    if sys.argv[1] == 'getProfileData':
+        getUserData()
