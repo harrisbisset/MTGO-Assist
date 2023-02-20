@@ -34,7 +34,7 @@ class MatchRecord:
             
             #gets decklists from game
             gameDecklists = self.getDeckLists(self.matchLog[gameNo])
-            print(gameDecklists)
+
             if gameDecklists is None:
                 break
             decklists[gameNo] = gameDecklists
@@ -116,21 +116,11 @@ class MatchRecord:
 
         #removes all full stops
         if len(altPlayers.keys())> 0:
-            print('vyunokmnojvyutcrxcyvukmppjnohbiuvgycfrgvuhbl;')
             for player in altPlayers.keys():
                 for pre in altPlayers[player]:
                     filteredMatch = [i for i in ''.join(filteredMatch).replace(' ',' {').split('{')]
-                    
-                    print(filteredMatch)
-
                     filteredMatch = [i.replace('.', '}') if pre not in i and '.' in i else i for i in filteredMatch]
-
-                    print(filteredMatch)
-
                     filteredMatch = ''.join(filteredMatch).split('}')
-
-                    print(filteredMatch)
-
                     filteredMatch = [re.sub('^.*@P', '@P', line) for line in filteredMatch if len(line) > 4]
         else:
             filteredMatch = ''.join(filteredMatch).split('.')
@@ -149,8 +139,6 @@ class MatchRecord:
         filteredMatch = [[re.split('(@P)', turn) for turn in game] for game in filteredMatch]
         filteredMatch = {gameNo:{turnNo:[re.sub(r'@P|[^\x00-\x7F]', '', line) for line in turn if len(line) > 4] for turnNo, turn in enumerate(game)} for gameNo, game in enumerate(filteredMatch)}
 
-        print(filteredMatch)
-
         #deletes random characters at start of match
         del filteredMatch[0][0]
         self.matchLog = filteredMatch
@@ -166,18 +154,11 @@ class MatchRecord:
         #card names are formatted as @[Card Name@:numbers,numbers:@]
         playCardPattern = re.compile(f'({re.escape(self.players[0])}|{re.escape(self.players[1])}) (casts|plays|discards|cycles) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
         revealedCardPattern = re.compile(f'({re.escape(self.players[0])}|{re.escape(self.players[1])}) (reveals) (@\[([a-zA-Z\s,-]+)@:[0-9,]+:@\])')
-        
-        print(game)
 
         for turn in range(0, len(game.keys())-1):
             #finds matched patterns
             playCardMatches = playCardPattern.findall(' '.join(game[turn]))
             revealedMatches = revealedCardPattern.findall(' '.join(game[turn]))
-
-            print(game[turn])
-            print(playCardMatches)
-            print(revealedMatches)
-
 
             for actions in playCardMatches:
 
