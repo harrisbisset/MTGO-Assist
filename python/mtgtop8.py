@@ -44,8 +44,7 @@ class DriverController():
 
         #if there are no decks found, then return deckNames (will have value of 'unknown')
         if deckNames == 'unknown':
-            self.quitDc()
-            return deckNames
+            deckNames = {'NA', 1.0}
 
         #calls getDeckName() to create a dictionary of deckNames and %
         dictNames = self.getDictNames(deckNames)
@@ -119,6 +118,8 @@ class DriverController():
 
 
     def refactorDecklist(self, deckLists):
+
+        #reformats decklists
         cards = {}
         for game in deckLists:
             for i, player in enumerate(deckLists[game]):
@@ -138,18 +139,13 @@ class DriverController():
         
         #creates a dictionary of deckNames
         dictNames = {'deckNames':[{deckName:0 for deckName in deckNames}]}
-        print(dictNames)
+
         #gets number of decks with same name
         for deckName in deckNames:
-            print(deckName)
             dictNames['deckNames'][0][deckName] = dictNames['deckNames'][0][deckName] + 1
         
         #gets percentage chance of said deck
         for deckName in dictNames['deckNames'][0]:
-            print(deckName)
-            print(len(deckNames))
-            print(dictNames['deckNames'][0])
-            print(dictNames['deckNames'][0][deckName])
             dictNames['deckNames'][0][deckName] = dictNames['deckNames'][0][deckName] / len(deckNames)
 
         return dictNames
