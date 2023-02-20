@@ -83,6 +83,42 @@ function structureDecklist(results, keys, leng, i, player){
   return res
 }
 
+function loadProfile(){
+  document.getElementById('mid').style.display = 'none';
+  document.getElementById('bottom').style.display = 'none';
+  document.getElementById('lowHeader').style.display = 'none';
+  document.getElementById('profile').style.display = 'block';
+
+  var pyshell =  require('python-shell');
+  var pjson = require('./package.json');
+
+  let options = {
+    mode: 'json',
+    pythonOptions: ['-u'],
+    args: ["profile", pjson.version]
+  }
+
+  pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
+    
+    if(err) throw err;
+  });
+}
+
+function closeProfile(){
+  document.getElementById('mid').style.display = 'block';
+  document.getElementById('bottom').style.display = 'block';
+  document.getElementById('lowHeader').style.display = 'block';
+  document.getElementById('profile').style.display = 'none';
+}
+
+document.querySelector('#pyBtnProfile').addEventListener('click', () => {
+  loadProfile();
+})
+
+document.querySelector('#close').addEventListener('click', () => {
+  closeProfile();
+})
+
 document.querySelector('#pyBtnSync').addEventListener('click', () => {
   runPythonSync();
 })
