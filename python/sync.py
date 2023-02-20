@@ -4,7 +4,7 @@ from mtgScraper import Scraper
 
 #gets path of mtgo
 localUser = os.getlogin()
-path = f'C:\\Users\\{localUser}\\AppData\\Local\\Apps\\2.0\Data\\'
+path = f'C:\\Users\\{localUser}\\AppData\\Local\\Apps\\2.0\\Data\\'
 
 #gets next two folders and adds them to path
 for i in range(0,2):
@@ -18,7 +18,10 @@ scp = Scraper()
 
 for folder in mainFolders:
     
-    folderPath = path + '\\' + folder + '\\' + 'Data\\AppFiles'
+    folderPath = f'{path}\\{folder}\\Data\\AppFiles'
+
+    #gets name of the user
+    scp.getPlayer(f'{folderPath}\\application_settings')
 
     #gets the directories of the appfiles folder
     for (folderPath, directory, fileNames) in walk(folderPath):
@@ -32,9 +35,9 @@ for folder in mainFolders:
 
         #don't look inside any subdirectory
         break
-    
-    #adds path to scp object
-    scp.addPath(folderPath)
 
+
+    #adds folder to list of folders to check
+    scp.addPath(folderPath)
 
 scp.run()
