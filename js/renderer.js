@@ -99,7 +99,23 @@ function loadProfile(){
   }
 
   pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
-    
+    document.getElementById('winrate').innerHTML = results;
+    if(err) throw err;
+  });
+}
+
+function getOpponentWinrate(){
+  var pyshell =  require('python-shell');
+  var pjson = require('./package.json');
+
+  let options = {
+    mode: 'json',
+    pythonOptions: ['-u'],
+    args: ["opponent", pjson.version]
+  }
+
+  pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
+    document.getElementById('opponentWinrate').innerHTML = results;
     if(err) throw err;
   });
 }
@@ -129,4 +145,8 @@ document.querySelector('#pyBtnNextPage').addEventListener('click', () => {
 
 document.addEventListener('DOMContentLoaded', () =>{
   loadFirstPage();
+})
+
+document.querySelector('#submitUser').addEventListener('click', () => {
+  getOpponentWinrate();
 })
