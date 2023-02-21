@@ -53,7 +53,6 @@ def getUserData():
     for match in results:
         for res in results[match]['winner']:
             if res != 'NA':
-                print(res)
                 if res == player:
                     count += 1
                 winList.append(res)
@@ -93,7 +92,6 @@ def getOppWinrate(opponent):
                 results[num].append(json.loads(item)['winner'])
             #results[num] = match[0]
 
-
     record = []
 
     while True:
@@ -105,31 +103,29 @@ def getOppWinrate(opponent):
     
             mid = (high + low) // 2
     
-            # If x is greater, ignore left half
             if results[mid][0] < opponent:
                 low = mid + 1
-    
-            # If x is smaller, ignore right half
             elif results[mid][0] > opponent:
                 high = mid - 1
-    
-            # means x is present at mid
             else:
                 for win in results[mid][1]:
                     record.append(win)
                 results.pop(mid)
     
-        # If we reach here, then the element was not present
+        #element not present
         break
 
     count = 0
     for play in record:
-        print(play)
         if play == player:
             count += 1
 
-    print(count / len(record))
+    if count != 0:
+        print(count / len(record))
+    else:
+        print(count)
 
+#getOppWinrate('Pazmaster')
 
 if __name__ == "main":
     pass
