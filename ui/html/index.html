@@ -25,10 +25,6 @@
                 </ul>
             </section>
         </section>
-
-        <section id="lowHeader">
-            <h1>Welcome back <script>//Get User's Name</script></h1>
-        </section>
     </section>
 
     <section id="mid">
@@ -63,13 +59,13 @@
     <section id="profile" style="display:none;">
         <div id="results">
         
-            <p>Winrate: <label id="winrate"></label></p><br>
+            <p>Winrate: <label id="winrate"></label>%</p><br>
 
             <p>Opponent Username:
-                <input type="text" name="user">
+                <input type="text" id="oppName">
                 <button id="submitUser">Submit</button>
             </p>
-            <p>Oppenent Winrate: <label id="opponentWinrate"></label></p><br><br>
+            <p>Winrate against opponent: <label id="opponentWinrate"></label>%</p><br><br>
             
         </div>
         <button id="close">Close</button>
