@@ -1,38 +1,38 @@
 function runPythonSync(){
-    var pyshell =  require('python-shell');
-    var pjson = require('./package.json');
+  var pyshell =  require('python-shell');
+  var pjson = require('./package.json');
 
-    let options = {
-      mode: 'text',
-      pythonOptions: ['-u'],
-      args: [pjson.version]
-    }
+  let options = {
+    mode: 'text',
+    pythonOptions: ['-u'],
+    args: [pjson.version]
+  }
 
-    pyshell.PythonShell.run('./python/sync.py', options, function  (err, results)  {
-      if (err)  throw err;
-      console.log('sync.py finished.');
-    });
+  pyshell.PythonShell.run('./python/sync.py', options, function  (err, results)  {
+    if (err)  throw err;
+    console.log('sync.py finished.');
+  });
 }
 
 //merge this and under
 
 function loadNextPage(){
-    var pyshell =  require('python-shell');
-    var pjson = require('./package.json');
+  var pyshell =  require('python-shell');
+  var pjson = require('./package.json');
 
-    let options = {
-      mode: 'text',
-      pythonOptions: ['-u'],
-      args: ["nextPage", pjson.version]
-    }
+  let options = {
+    mode: 'text',
+    pythonOptions: ['-u'],
+    args: ["nextPage", pjson.version]
+  }
 
-    pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
+  pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
 
-      //append to table
+    //append to table
 
-      if(err)  throw err;
-      console.log('loaded next page');
-    });
+    if(err)  throw err;
+    console.log('loaded next page');
+  });
 }
 
 function loadFirstPage(){
@@ -86,37 +86,38 @@ function structureDecklist(results, keys, leng, i, player){
 function loadProfile(){
   document.getElementById('mid').style.display = 'none';
   document.getElementById('bottom').style.display = 'none';
-  document.getElementById('lowHeader').style.display = 'none';
   document.getElementById('profile').style.display = 'block';
 
   var pyshell =  require('python-shell');
   var pjson = require('./package.json');
 
   let options = {
-    mode: 'json',
+    mode: 'text',
     pythonOptions: ['-u'],
     args: ["profile", pjson.version]
   }
 
   pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
+    console.log(results);
     document.getElementById('winrate').innerHTML = results;
     if(err) throw err;
   });
 }
 
 function getOpponentWinrate(){
-  let name = document.getElementById('opponentWinrate').innerHTML;
+  let name = document.getElementById('oppName').value;
 
   var pyshell =  require('python-shell');
   var pjson = require('./package.json');
 
   let options = {
-    mode: 'json',
+    mode: 'text',
     pythonOptions: ['-u'],
     args: ["opponent", name, pjson.version]
   }
 
   pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
+    console.log(results);
     document.getElementById('opponentWinrate').innerHTML = results;
     if(err) throw err;
   });
@@ -125,7 +126,6 @@ function getOpponentWinrate(){
 function closeProfile(){
   document.getElementById('mid').style.display = 'block';
   document.getElementById('bottom').style.display = 'block';
-  document.getElementById('lowHeader').style.display = 'block';
   document.getElementById('profile').style.display = 'none';
 }
 
