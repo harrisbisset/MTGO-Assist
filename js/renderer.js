@@ -105,13 +105,15 @@ function loadProfile(){
 }
 
 function getOpponentWinrate(){
+  let name = document.getElementById('opponentWinrate').innerHTML;
+
   var pyshell =  require('python-shell');
   var pjson = require('./package.json');
 
   let options = {
     mode: 'json',
     pythonOptions: ['-u'],
-    args: ["opponent", pjson.version]
+    args: ["opponent", name, pjson.version]
   }
 
   pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
