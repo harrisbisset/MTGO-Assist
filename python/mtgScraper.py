@@ -21,7 +21,7 @@ class Scraper():
         
         try:
             with open('./playerName.txt', 'rb') as f:
-                self.player = f.read()
+                self.player = f.read().decode(encoding='utf-8', errors='replace')
         except:
             #reads file contents
             with open(filename, 'rb') as f:
