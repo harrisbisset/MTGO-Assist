@@ -40,8 +40,6 @@ function loadFirstPage(){
                 <th class="p2Deck"><p class="replaceTextDeck">${structureDecklist(results, keys, leng, i, 'P2')}</p><button class="replaceImageDeck">...</button></th>
                 <th class="turnOrder"><p class="replaceTextExtra">${JSON.stringify(results[0][keys[leng-i-1]][0]['play']).replace(',','<br>').replace(/[[\]]|"/g, '')}</p><button class="replaceImageExtra">...</button></th>
                 <th class="winList"><p class="replaceTextExtra">${JSON.stringify(results[0][keys[leng-i-1]][0]['winner']).replace(',','<br>').replace(/[[\]]|"/g, '')}</p><button class="replaceImageExtra">...</button></th>
-                <th class="format">${results[0][keys[leng-i-1]][0]['format']}</th>
-                <th class="type">${results[0][keys[leng-i-1]][0]['type']}</th>
                 <th class="date">${JSON.stringify(results[0][keys[leng-i-1]][0]['date']).replace('"','').split(' ')[0]}</th>
               </tr>`
         document.getElementById('databaseContent').insertAdjacentHTML('beforeend', append);
