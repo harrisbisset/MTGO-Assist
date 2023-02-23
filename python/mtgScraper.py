@@ -151,9 +151,9 @@ class Scraper():
     def sqlliteDriverData(self, filename, dateTime, deckName, extra, players, matchLists):
 
         #inserts match into database
-        data = (json.dumps(filename), json.dumps(players), json.dumps(deckName), json.dumps({'P1':matchLists['P1']}), json.dumps({'P2':matchLists['P2']}), json.dumps({'play':extra['play']}), json.dumps({'winner':extra['winner']}), json.dumps({'format':'NA'}), json.dumps({'type':'Constructed'}), json.dumps({'date':dateTime}))
+        data = (json.dumps(filename), json.dumps(players), json.dumps(deckName), json.dumps({'P1':matchLists['P1']}), json.dumps({'P2':matchLists['P2']}), json.dumps({'play':extra['play']}), json.dumps({'winner':extra['winner']}), json.dumps({'date':dateTime}))
         
-        self.cursor.execute("INSERT INTO matches(filename, opponent, decknames, decklistP1, decklistP2, play, winner, format, type, date) VALUES(?,?,?,?,?,?,?,?,?,?);", data)
+        self.cursor.execute("INSERT INTO matches(filename, opponent, decknames, decklistP1, decklistP2, play, winner, date) VALUES(?,?,?,?,?,?,?,?,?,?);", data)
         self.userConnection.commit()
             
             
