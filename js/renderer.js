@@ -14,27 +14,6 @@ function runPythonSync(){
   });
 }
 
-//merge this and under
-
-function loadNextPage(){
-  var pyshell =  require('python-shell');
-  var pjson = require('./package.json');
-
-  let options = {
-    mode: 'text',
-    pythonOptions: ['-u'],
-    args: ["nextPage", pjson.version]
-  }
-
-  pyshell.PythonShell.run('./python/dbCMD.py', options, function  (err, results)  {
-
-    //append to table
-
-    if(err)  throw err;
-    console.log('loaded next page');
-  });
-}
-
 function loadFirstPage(){
   var pyshell =  require('python-shell');
   var pjson = require('./package.json');
@@ -139,10 +118,6 @@ document.querySelector('#close').addEventListener('click', () => {
 
 document.querySelector('#pyBtnSync').addEventListener('click', () => {
   runPythonSync();
-})
-
-document.querySelector('#pyBtnNextPage').addEventListener('click', () => {
-  loadNextPage();
 })
 
 document.addEventListener('DOMContentLoaded', () =>{
