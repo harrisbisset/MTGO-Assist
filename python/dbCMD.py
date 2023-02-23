@@ -7,7 +7,7 @@ def openData():
     userConnection = sqlite3.connect("./database/mtgoAssist.db")
     cursor = userConnection.cursor()
     try:
-        matches = cursor.execute("SELECT * FROM matches ORDER BY matchID DESC limit 20;").fetchall()
+        matches = cursor.execute("SELECT * FROM matches ORDER BY matchID DESC;").fetchall()
         
         results = {}
 
