@@ -133,15 +133,13 @@ class Scraper():
             #creates the matches table
             self.cursor.execute("""CREATE TABLE matches(
                                 matchID INTEGER PRIMARY KEY, 
-                                filename BLOB, 
+                                filename BLOB NOT NULL, 
                                 opponent BLOB NOT NULL, 
                                 decknames BLOB, 
                                 decklistP1 BLOB, 
                                 decklistP2 BLOB, 
                                 play BLOB NOT NULL,
                                 winner BLOB NOT NULL,
-                                format BLOB, 
-                                type BLOB, 
                                 date BLOB NOT NULL);""")
             self.userConnection.commit()
 
