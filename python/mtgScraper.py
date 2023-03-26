@@ -70,7 +70,7 @@ class Scraper():
 
                 #if file already scraped
                 if filename in filenames:
-                    break
+                    continue
                 
                 #gets decklists from MatchRecord
                 #other stored data is implemented into database in MatchRecord
