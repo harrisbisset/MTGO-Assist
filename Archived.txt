@@ -1,0 +1,25 @@
+Format (mtgtop8)
+
+ #format is currently not discerable from the logs, so this should always be true
+    if format is not None:
+        #finds the format <select> tag, and selects the format passed in
+        selectElement = self.driver.find_element(By.XPATH, '//body/div/div/table/tbody/tr/td[1]/form/table/tbody/tr[4]/td[2]/select')
+        selectObject = Select(selectElement)
+        selectObject.select_by_visible_text(format)
+
+
+
+Games Table (mtgScraper)
+
+#creates games table
+self.cursor.execute("""CREATE TABLE games(
+                       gamesID INTEGER NOT NULL PRIMARY KEY, 
+                       gameNum INTEGER NOT NULL,
+                       startingHands BLOB NOT NULL,
+                       decklistP1 BLOB,
+                       decklistP2 BLOB,
+                       gameLog BLOB NOT NULL, 
+                       winner BLOB, 
+                       matchID INTEGER REFERENCES matches(matchID) ON UPDATE CASCADE);""")
+
+self.userConnection.commit()
