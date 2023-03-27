@@ -22,7 +22,7 @@ class MatchRecord:
             if self.players == []:
                 return None, None, None
                 
-        except (IndexError, ValueError):
+        except:
             #if there is a problem reading the player names or the match is not 1v1 (fie invalid)
             return None, None, None
 
@@ -33,11 +33,7 @@ class MatchRecord:
         for gameNo in range(1,len(self.matchLog)):
             
             #gets decklists from game
-            gameDecklists = self.getDeckLists(self.matchLog[gameNo])
-
-            if gameDecklists is None:
-                break
-            decklists[gameNo] = gameDecklists
+            decklists[gameNo] = self.getDeckLists(self.matchLog[gameNo])
 
             #gets player on play
             try:
@@ -54,28 +50,7 @@ class MatchRecord:
             #gets winner of game
             extra['winner'].append(self.getWinner(self.matchLog[gameNo]))
 
-
-        #if only two matches were played, then the person who was on the draw game 2, won the match
-        if 'NA' in extra['winner'] and len(extra['play']) == 2:
-            
-            #gets player on draw in game 2
-            player = [i for i in self.players if extra['play'][1] != i]
-
-            #loops through each 'NA' result, and replaces it with the winner
-            for indice in [i for i, elem in enumerate(extra['winner']) if elem == 'NA']:
-                extra['winner'][indice] = player[0]
-
-
-        #if 1 or fewer winners were recorded, and only two games were played, the player in the draw in game 2 won the match
-        if len(extra['winner']) < 2 and len(extra['play']) == 2:
-            
-            #gets player on draw in game 2
-            player = [i for i in self.players if extra['play'][1] != i]
-
-            #while there are less than 2 recorded winners
-            while len(extra['winner']) < 2:
-                extra['winner'].append(player[0])
-
+            extra = self.determineWinner(extra)
 
         return decklists, extra, self.players
 
@@ -92,7 +67,6 @@ class MatchRecord:
             while len(self.players) > 2:
                 self.players.pop()
 
-        
 
 
 
@@ -192,7 +166,6 @@ class MatchRecord:
         # Returns 'player' or 'opponent'
         text = ' '.join(game[0])
         onPlay = re.compile(f'({re.escape(self.players[0])}|{re.escape(self.players[1])})\ chooses\ to\ play\ first\ ').search(text).group(1)
-
         return onPlay
 
 
@@ -230,3 +203,30 @@ class MatchRecord:
             return self.players[self.players.index(loses.group(1))][0]
         
         return 'NA'
+    
+
+
+
+    def determineWinner(self, extra):
+        #if only two matches were played, then the person who was on the draw game 2, won the match
+        if 'NA' in extra['winner'] and len(extra['play']) == 2:
+            
+            #gets player on draw in game 2
+            player = [i for i in self.players if extra['play'][1] != i]
+
+            #loops through each 'NA' result, and replaces it with the winner
+            for indice in [i for i, elem in enumerate(extra['winner']) if elem == 'NA']:
+                extra['winner'][indice] = player[0]
+
+
+        #if 1 or fewer winners were recorded, and only two games were played, the player in the draw in game 2 won the match
+        if len(extra['winner']) < 2 and len(extra['play']) == 2:
+            
+            #gets player on draw in game 2
+            player = [i for i in self.players if extra['play'][1] != i]
+
+            #while there are less than 2 recorded winners
+            while len(extra['winner']) < 2:
+                extra['winner'].append(player[0])
+
+        return extra
