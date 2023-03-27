@@ -18,9 +18,9 @@ class Scraper():
 
 
     def getPlayer(self, filename):
-        
+
         try:
-            with open('./playerName.txt', 'rb') as f:
+            with open('../MTGO-ASSIST/data/playerName.txt', 'rb') as f:
                 self.player = f.read().decode(encoding='utf-8', errors='replace')
         except:
             #reads file contents
@@ -29,6 +29,9 @@ class Scraper():
             
             #gets player name from file contents
             self.player = re.findall('"(.*)"', file[file.index('Setting="LastLoginName"')+1])[0]
+            
+            with open('../data/playerName.txt', 'rb') as f:
+                f.write(self.player)
 
 
 
@@ -70,6 +73,7 @@ class Scraper():
 
                 #if file already scraped
                 if filename in filenames:
+                    print('continue')
                     continue
                 
                 #gets decklists from MatchRecord
@@ -105,7 +109,7 @@ class Scraper():
 
 
     def openConn(self):
-        self.userConnection = sqlite3.connect("./database/mtgoAssist.db")
+        self.userConnection = sqlite3.connect("./data/mtgoAssist.db")
         self.cursor = self.userConnection.cursor()
 
 
