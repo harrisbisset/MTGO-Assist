@@ -4,11 +4,12 @@ import json
 
 #gets data from database to be displayed on table
 def openData():
-    userConnection = sqlite3.connect("./database/mtgoAssist.db")
+    userConnection = sqlite3.connect("./data/mtgoAssist.db")
     cursor = userConnection.cursor()
     try:
         matches = cursor.execute("SELECT * FROM matches ORDER BY matchID DESC;").fetchall()
-        
+        closeConn(cursor, userConnection)
+
         results = {}
 
         for matchTuple in matches:
@@ -38,10 +39,11 @@ def getUserData():
         print('NA')
         return
 
-    userConnection = sqlite3.connect("./database/mtgoAssist.db")
+    userConnection = sqlite3.connect("./data/mtgoAssist.db")
     cursor = userConnection.cursor()
 
     matches = cursor.execute("SELECT winner FROM matches;").fetchall()
+    closeConn(cursor, userConnection)
 
     results = {}
     for num, match in enumerate(matches):
@@ -59,9 +61,6 @@ def getUserData():
 
     print(count / len(winList))
 
-    cursor.close()
-    userConnection.close()
-
 
 
 
@@ -74,11 +73,11 @@ def getOppWinrate(opponent):
         print('NA')
         return
 
-    userConnection = sqlite3.connect("./database/mtgoAssist.db")
+    userConnection = sqlite3.connect("./data/mtgoAssist.db")
     cursor = userConnection.cursor()
 
     matches = cursor.execute("SELECT opponent, winner FROM matches ORDER BY opponent;").fetchall()
-
+    closeConn(cursor, userConnection)
 
     #[[opponent, [name, name...]],[]]
     results = []
@@ -125,7 +124,9 @@ def getOppWinrate(opponent):
     else:
         print(count)
 
-#getOppWinrate('Pazmaster')
+def closeConn(cursor, userConnection):
+    cursor.close()
+    userConnection.close()
 
 if __name__ == "main":
     pass
@@ -137,5 +138,4 @@ else:
     elif sys.argv[1] =='opponent':
         getOppWinrate(sys.argv[2])
     
-
 
