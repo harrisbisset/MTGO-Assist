@@ -91,7 +91,7 @@ class Scraper():
                     
                     if top8Conn == True:
                         #gets the possible deck names from DriverController
-                        deckName, matchLists = dc.returnDeckName(decklists, date)
+                        deckName, matchLists = dc.returnDeckName(self.getMatchDecklists(decklists), date)
                     else:
                         deckName = {'NA': 1.0}
                     
@@ -147,7 +147,7 @@ class Scraper():
                                 date BLOB NOT NULL);""")
             self.userConnection.commit()
 
-        
+
 
 
     def sqlliteDriverData(self, filename, dateTime, deckName, extra, players, matchLists):
@@ -157,8 +157,26 @@ class Scraper():
         
         self.cursor.execute("INSERT INTO matches(filename, opponent, decknames, decklistP1, decklistP2, play, winner, date) VALUES(?,?,?,?,?,?,?,?,?,?);", data)
         self.userConnection.commit()
-            
-            
+
+
+
+
+    def getMatchDecklists(deckLists):
+        #reformats decklists
+        cards = {}
+        for game in deckLists:
+            for i, player in enumerate(deckLists[game]):
+                if i == 0:
+                    tempPlayer = 'P2'
+                else:
+                    tempPlayer = 'P1'
+                cards[tempPlayer] = [{}]
+                for card in deckLists[game][player]:
+                    cards[tempPlayer][0].update({f'{card}':deckLists[game][player][card]})
+
+        return deckLists
+
+
 
 
     def closeConn(self):
