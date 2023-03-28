@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.keys import Keys
@@ -33,8 +32,6 @@ class DriverController():
 
         #calls the 'cookieBanner()' method to try and clear the cookie banner
         self.clearCookieBanner()
-
-        deckLists = self.refactorDecklist(deckLists)
 
         #calls the 'inputFormData()' method to get all decks to be scraped
         self.inputFormData(deckLists['P1'][0], date)
@@ -115,23 +112,6 @@ class DriverController():
         #stops the driver
         self.driver.quit()
 
-
-
-    def refactorDecklist(self, deckLists):
-
-        #reformats decklists
-        cards = {}
-        for game in deckLists:
-            for i, player in enumerate(deckLists[game]):
-                if i == 0:
-                    tempPlayer = 'P2'
-                else:
-                    tempPlayer = 'P1'
-                cards[tempPlayer] = [{}]
-                for card in deckLists[game][player]:
-                    cards[tempPlayer][0].update({f'{card}':deckLists[game][player][card]})
-        
-        return cards
         
 
 
