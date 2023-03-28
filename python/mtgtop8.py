@@ -42,9 +42,9 @@ class DriverController():
         #if there are no decks found, then return deckNames (will have value of 'unknown')
         if deckNames == 'unknown':
             deckNames = {'NA', 1.0}
-
-        #calls getDeckName() to create a dictionary of deckNames and %
-        dictNames = self.getDictNames(deckNames)
+        else:
+            #calls getDeckName() to create a dictionary of deckNames and %
+            dictNames = self.getDictNames(deckNames)
 
         return dictNames, deckLists
 
