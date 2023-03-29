@@ -6,6 +6,7 @@ import urllib.request
 import sqlite3
 import json
 import re
+import pickle
 
 
 
@@ -63,6 +64,7 @@ class Scraper():
         filenames = self.cursor.fetchall()
         filenames = [json.loads(i[0])['filename'] for i in filenames]
 
+
         for path in self.paths:
             
             #gets list of files in path
@@ -72,9 +74,9 @@ class Scraper():
             for filename in fileList:
 
                 #if file already scraped
-                if filename in filenames:
-                    print('continue')
+                if filename in filenames or filename.startswith('Match_GameLog'):
                     continue
+
                 
                 #gets decklists from MatchRecord
                 #other stored data is implemented into database in MatchRecord
@@ -89,11 +91,18 @@ class Scraper():
                     x, y, z = dateTime.split(' ')[0].split('-')
                     date = {'date':f'{z}/{y}/{x}'}
                     
-                    if top8Conn == True:
-                        #gets the possible deck names from DriverController
-                        deckName, matchLists = dc.returnDeckName(self.getMatchDecklists(decklists), date)
-                    else:
-                        deckName = {'NA': 1.0}
+                    matchLists = self.getMatchDecklists(decklists)
+
+                    deckName = self.checkExistingDeck(matchLists['P1'][0])
+
+                    if deckName == '':
+                        if top8Conn == True:
+                            #gets the possible deck names from DriverController
+                            deckName = dc.returnDeckName(matchLists, date)
+                            if list(deckName.keys())[0] != 'NA':
+                                self.saveDeck(matchLists['P1'][0], list(deckName['deckNames'][0].keys())[0])
+                        else:
+                            deckName = {'NA': 1.0}
                     
                     #sends info to sqliite db
                     self.sqlliteDriverData({'filename':filename}, dateTime, deckName, extra, {'players':players}, matchLists)
@@ -161,7 +170,7 @@ class Scraper():
 
 
 
-    def getMatchDecklists(deckLists):
+    def getMatchDecklists(self, deckLists):
         #reformats decklists
         cards = {}
         for game in deckLists:
@@ -173,8 +182,46 @@ class Scraper():
                 cards[tempPlayer] = [{}]
                 for card in deckLists[game][player]:
                     cards[tempPlayer][0].update({f'{card}':deckLists[game][player][card]})
+        return cards
 
-        return deckLists
+
+
+
+    def checkExistingDeck(self, matchlist):
+        try:
+            with open('./data/deckNames.pickle', 'rb') as handle:
+                decks = pickle.load(handle)
+        except:
+            with open('./data/deckNames.pickle', 'wb') as handle:
+                pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+            
+            return ''
+        
+
+        for i in decks:
+            try:
+                if list(set(matchlist).intersection(i['decklists']))[0] > (len(matchlist)/2):
+                    return i['deckname']
+            except:
+                pass
+        
+        return ''
+        
+
+
+
+
+
+    def saveDeck(self, matchLists, deckName):
+        with open('./data/deckNames.pickle', 'rb') as handle:
+            plkData = pickle.load(handle)
+        
+        with open('./data/deckNames.pickle', 'wb') as handle:
+            plkData.append({'deckname':deckName, 'decklists':matchLists})
+            pickle.dump(plkData, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+
 
 
 
