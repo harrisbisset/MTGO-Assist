@@ -1,5 +1,5 @@
 ## MTGO Assistant Tool
-v1.0.0
+Final school year project
 
 ## License
 [MIT License](LICENSE)
